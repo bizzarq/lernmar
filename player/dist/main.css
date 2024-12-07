@@ -1,0 +1,20 @@
+:root {
+  --vdimension: min(2.5vw, 3.75vh, 18px);
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  font-size: var(--vdimension);
+  font-weight: 500;
+  margin: 0;
+}
+
+#lernmar {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
