@@ -152,6 +152,9 @@ class ScormApi {
 
   Terminate(arg: "") {
     console.log("Terminate()");
+    if (section) {
+      renderIndex(section);
+    }
     return true;
   }
 
