@@ -1,5 +1,8 @@
 import json
 import os
+import posixpath
+from pathlib import Path
+from xml.etree import ElementTree
 from typing import Any
 
 
@@ -28,20 +31,33 @@ def write_index(course_dir: str, index: list[dict[str, Any]]) -> None:
     with open(path, mode='wt') as file:
         json.dump({'courses': index}, file)
 
-def scan_course(course_dir: str, path: str) -> dict[str, Any] | None:
+def scan_course(course_dir: str, course_path: str) -> dict[str, Any] | None:
     """
     scans a course and generates and index entry for it.
     @param: course_dir directory the course belongs to (which is used to generate relative paths).
-    @param: path path of course in file sytem.
+    @param: course_path path of course in file sytem.
     @return index entry for course.
     """
-    abs_path = os.path.join(path, 'index.html')
-    if os.path.isfile(abs_path):
-        name = os.path.basename(os.path.dirname(abs_path))
-        path = os.path.relpath(abs_path, course_dir)
-        return {'name': name, 'path': path}
-    return None
-
+    manifest_path = os.path.join(course_path, 'imsmanifest.xml')
+    if not os.path.isfile(manifest_path):
+        return None
+    tree = ElementTree.parse(manifest_path)
+    root = tree.getroot()
+    elem = root.find('{http://www.imsglobal.org/xsd/imscp_v1p1}resources/{http://www.imsglobal.org/xsd/imscp_v1p1}resource')
+    if elem is None:
+        return None
+    href = elem.get('href')
+    if href is None:
+        return None
+    course_path = os.path.normpath(course_path)
+    index_abs_path = os.path.normpath(os.path.join(course_path, href))
+    if not index_abs_path.startswith(course_path) or not os.path.isfile(index_abs_path):
+        # ignore courses whose index file is not within the course directory
+        return None
+    name = os.path.basename(course_path)
+    index_path = os.path.relpath(index_abs_path, course_dir)
+    index_path = index_path.replace('\\', '/') # convert windows path separators to url path separators
+    return {'name': name, 'path': index_path}
 
 
 if __name__ == '__main__':
