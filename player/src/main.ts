@@ -27,7 +27,7 @@ async function renderIndex(section: HTMLElement) {
         let entry = document.createElement('button');
         entry.innerText = name;
         entries.appendChild(entry);
-        entries.onclick = () => playCourse(section, course as Course);
+        entry.onclick = () => playCourse(section, course as Course);
       }
     }
     if (entries.childElementCount > 0) {
@@ -70,7 +70,7 @@ type ReadWriteValues = {
 }
 
 type ReadOnlyValues = {
-  "cmi._version": "SCORM 2004 4th Edition",
+  "cmi._version": "2004 4th Edition",
   "cmi.credit": "credit" | "no-credit",
   "cmi.entry": "ab_initio" | "resume" | "",
   "cmi.learner_id": string,
@@ -124,7 +124,7 @@ let isWritableElement: Record<keyof WriteValues, true> = {
 class ScormApi {
 
   values: Values = {
-    "cmi._version": "SCORM 2004 4th Edition",
+    "cmi._version": "2004 4th Edition",
     "cmi.credit": "credit",
     "cmi.completion_status": "unknown",
     "cmi.entry": "",
