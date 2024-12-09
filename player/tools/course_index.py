@@ -1,7 +1,8 @@
 import json
 import os
-import posixpath
+import urllib
 from pathlib import Path
+import urllib.parse
 from xml.etree import ElementTree
 from typing import Any
 
@@ -50,14 +51,19 @@ def scan_course(course_dir: str, course_path: str) -> dict[str, Any] | None:
     if href is None:
         return None
     course_path = os.path.normpath(course_path)
-    index_abs_path = os.path.normpath(os.path.join(course_path, href))
+    parsed_href = urllib.parse.urlparse(href)
+    if parsed_href.scheme != '' or parsed_href.netloc != '':
+        # ignore courses whose href is not a relative path
+        return None
+    index_abs_path = os.path.normpath(os.path.join(course_path, parsed_href.path))
     if not index_abs_path.startswith(course_path) or not os.path.isfile(index_abs_path):
         # ignore courses whose index file is not within the course directory
         return None
     name = os.path.basename(course_path)
-    index_path = os.path.relpath(index_abs_path, course_dir)
-    index_path = index_path.replace('\\', '/') # convert windows path separators to url path separators
-    return {'name': name, 'path': index_path}
+    index_url = urllib.parse.urlunparse((
+        '', '', f'{name}/{parsed_href.path}',
+        parsed_href.params, parsed_href.query, parsed_href.fragment))
+    return {'name': name, 'path': index_url}
 
 
 if __name__ == '__main__':
