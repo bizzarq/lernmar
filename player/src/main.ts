@@ -21,6 +21,7 @@ async function renderIndex(section: HTMLElement) {
     let response = await fetch('courses/index.json');
     let index = await response.json();
     let entries = document.createElement("section");
+    entries.classList.add("index");
     for (let course of index?.courses) {
       let name = course.name;
       if (name && course.path) {

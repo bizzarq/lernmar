@@ -18,3 +18,27 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+.index {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: 0.2em;
+}
+
+button {
+  background: transparent;
+  border: 0;
+}
+
+button:hover {
+  background: rgba(51, 102, 204, 0.2);
+  opacity: 0.8;
+}
+
+button:active {
+  background: rgba(51, 102, 204, 0.6);
+  opacity: 0.8;
+  color: #003399;
+  font-weight: 600;
+}
