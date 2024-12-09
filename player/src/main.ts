@@ -77,6 +77,7 @@ type ReadOnlyValues = {
   "cmi.learner_id": string,
   "cmi.learner_name": string,
   "cmi.mode": "browse" | "normal" | "review",
+  "cmi.objectives._count": number,
   "cmi.session_time": number,
   "cmi.total_time": number,
 }
@@ -98,6 +99,7 @@ let isReadablElement: Record<keyof ReadValues, true> = {
   "cmi.learner_name": true,
   "cmi.location": true,
   "cmi.mode": true,
+  "cmi.objectives._count": true,
   "cmi.progress_measure": true,
   "cmi.score.scaled": true,
   "cmi.score.raw": true,
@@ -134,6 +136,7 @@ class ScormApi {
     "cmi.learner_name": "",
     "cmi.location": "",
     "cmi.mode": "normal",
+    "cmi.objectives._count": 0,
     "cmi.progress_measure": 0,
     "cmi.score.scaled": 0,
     "cmi.score.raw": 0,
@@ -165,10 +168,11 @@ class ScormApi {
   }
 
   GetValue(element: keyof ReadValues): ReadValues[typeof element] | undefined {
-    console.log(`GetValue(${element})`);
     if (isReadablElement[element]) {
+      console.log(`GetValue(${element}) return ${this.values[element]}`);
       return this.values[element];
     }
+    console.log(`GetValue(${element}) -> return undefined`);
   }
 
   GetLastError() {
