@@ -10,5 +10,8 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "serve": "python -m http.server -d dist/ || python3 -m http.server -d dist/"
+  },
+  "dependencies": {
+    "lernmar-api": "file:../api"
   }
 }

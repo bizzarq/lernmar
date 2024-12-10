@@ -1,3 +1,7 @@
+import type {
+  ScormApi_2004_4, ScormBoolean, CMIErrorCode, ReadValues, WriteValues, Values,
+} from "lernmar-api/src/scorm2004_4";
+
 let section = document.getElementById("lernmar");
 
 if (!section) {
@@ -58,38 +62,6 @@ function playCourse(section: HTMLElement, course: Course) {
   section.replaceChildren(iframe);
 }
 
-type ReadWriteValues = {
-  "cmi.completion_status": "completed" | "incomplete" | "not attempted" | "unknown",
-  "cmi.location": string,
-  "cmi.progress_measure": number,
-  "cmi.score.scaled": number,
-  "cmi.score.raw": number,
-  "cmi.score.min": number,
-  "cmi.score.max": number,
-  "cmi.success_status": "passed" | "failed" | "unknown",
-  "cmi.suspend_data": string,
-}
-
-type ReadOnlyValues = {
-  "cmi._version": "2004 4th Edition",
-  "cmi.credit": "credit" | "no-credit",
-  "cmi.entry": "ab_initio" | "resume" | "",
-  "cmi.interactions._count": number,
-  "cmi.learner_id": string,
-  "cmi.learner_name": string,
-  "cmi.mode": "browse" | "normal" | "review",
-  "cmi.objectives._count": number,
-  "cmi.session_time": number,
-  "cmi.total_time": number,
-}
-
-type WriteOnlyValues = {
-  "cmi.exit": "timeout" | "suspend" | "logout" | "normal" | "",
-}
-
-type ReadValues = ReadWriteValues & ReadOnlyValues;
-type WriteValues = ReadWriteValues & WriteOnlyValues;
-type Values = ReadWriteValues & ReadOnlyValues & WriteOnlyValues;
 
 let isReadablElement: Record<keyof ReadValues, true> = {
   "cmi._version": true,
@@ -126,7 +98,7 @@ let isWritableElement: Record<keyof WriteValues, true> = {
   "cmi.suspend_data": true,
 }
 
-class ScormApi {
+class ScormApi implements ScormApi_2004_4 {
 
   values: Values = {
     "cmi._version": "2004 4th Edition",
@@ -152,22 +124,17 @@ class ScormApi {
   }
   lastError: number = 0;
 
-  Initialize(arg: "") {
+  Initialize(arg: ""): ScormBoolean {
     console.log("Initialize()");
-    return true;
+    return "true";
   }
 
-  Terminate(arg: "") {
+  Terminate(arg: ""): ScormBoolean {
     console.log("Terminate()");
     if (section) {
       renderIndex(section);
     }
-    return true;
-  }
-
-  Commit(arg: "") {
-    console.log("Commit()");
-    return true;
+    return "true";
   }
 
   GetValue(element: keyof ReadValues): ReadValues[typeof element] | undefined {
@@ -178,23 +145,32 @@ class ScormApi {
     console.log(`GetValue(${element}) -> return undefined`);
   }
 
-  GetLastError() {
-    return this.lastError;
-  }
-
-  SetValue<E extends keyof WriteValues> (element: E, value: WriteValues[E]) {
+  SetValue<E extends keyof WriteValues> (element: E, value: WriteValues[E]): ScormBoolean {
     console.log(`Set Value(${element} ${value})`);
     if (isWritableElement[element]) {
       this.values[element] = value as Values[E];
     }
+    return "true";
+  }
+
+  Commit(arg: ""): ScormBoolean {
+    console.log("Commit()");
+    return "true";
+  }
+
+  GetLastError(): CMIErrorCode {
+    return "0";
+  }
+
+  GetErrorString(errorCode: CMIErrorCode): string {
+    return "";
+  }
+
+  GetDiagnostic(errorCode: CMIErrorCode): string {
+    return "";
   }
 
 }
 
-export {};
-
-declare global {
-  interface Window { API_1484_11: ScormApi; }
-}
 
 window.API_1484_11 = new ScormApi();
