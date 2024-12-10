@@ -1,0 +1,13 @@
+{
+  "name": "lernmar-api",
+  "version": "0.1.0",
+  "description": "API between SCORM courses and their players",
+  "author": "Bizzarq Software",
+  "license": "ISC",
+  "main": "main.ts",
+  "typings": "src/main.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch"
+  }
+}
