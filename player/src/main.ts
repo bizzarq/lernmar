@@ -104,25 +104,25 @@ class ScormApi implements ScormApi_2004_4 {
     "cmi._version": "2004 4th Edition",
     "cmi.credit": "credit",
     "cmi.completion_status": "unknown",
-    "cmi.interactions._count": 0,
+    "cmi.interactions._count": "0",
     "cmi.entry": "",
     "cmi.exit": "",
     "cmi.learner_id": "",
     "cmi.learner_name": "",
     "cmi.location": "",
     "cmi.mode": "normal",
-    "cmi.objectives._count": 0,
-    "cmi.progress_measure": 0,
-    "cmi.score.scaled": 0,
-    "cmi.score.raw": 0,
-    "cmi.score.min": 0,
-    "cmi.score.max": 0,
-    "cmi.session_time": 0,
+    "cmi.objectives._count": "0",
+    "cmi.progress_measure": "0",
+    "cmi.score.scaled": "0",
+    "cmi.score.raw": "0",
+    "cmi.score.min": "0",
+    "cmi.score.max": "0",
+    "cmi.session_time": "0",
     "cmi.success_status": "unknown",
     "cmi.suspend_data": "",
-    "cmi.total_time": 0,
+    "cmi.total_time": "0",
   }
-  lastError: number = 0;
+  lastError: CMIErrorCode = "0";
 
   Initialize(_arg: ""): ScormBoolean {
     console.log("Initialize()");

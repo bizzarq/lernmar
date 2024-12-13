@@ -9,11 +9,11 @@ type CMIErrorCode = "0" |
 type ReadWriteValues = {
   "cmi.completion_status": "completed" | "incomplete" | "not attempted" | "unknown",
   "cmi.location": string,
-  "cmi.progress_measure": number,
-  "cmi.score.scaled": number,
-  "cmi.score.raw": number,
-  "cmi.score.min": number,
-  "cmi.score.max": number,
+  "cmi.progress_measure": string,
+  "cmi.score.scaled": string,
+  "cmi.score.raw": string,
+  "cmi.score.min": string,
+  "cmi.score.max": string,
   "cmi.success_status": "passed" | "failed" | "unknown",
   "cmi.suspend_data": string,
 }
@@ -22,13 +22,13 @@ type ReadOnlyValues = {
   "cmi._version": "2004 4th Edition",
   "cmi.credit": "credit" | "no-credit",
   "cmi.entry": "ab_initio" | "resume" | "",
-  "cmi.interactions._count": number,
+  "cmi.interactions._count": string,
   "cmi.learner_id": string,
   "cmi.learner_name": string,
   "cmi.mode": "browse" | "normal" | "review",
-  "cmi.objectives._count": number,
-  "cmi.session_time": number,
-  "cmi.total_time": number,
+  "cmi.objectives._count": string,
+  "cmi.session_time": string,
+  "cmi.total_time": string,
 }
 
 type WriteOnlyValues = {
