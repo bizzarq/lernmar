@@ -45,7 +45,7 @@ interface ScormApi_2004_4 {
 
   Terminate(arg: ""): ScormBoolean;
 
-  GetValue(element: keyof ReadValues): ReadValues[typeof element] | undefined;
+  GetValue<E extends keyof ReadValues> (element: E): ReadValues[E] | undefined;
 
   SetValue<E extends keyof WriteValues> (element: E, value: WriteValues[E]): ScormBoolean;
 

@@ -137,7 +137,7 @@ class ScormApi implements ScormApi_2004_4 {
     return "true";
   }
 
-  GetValue(element: keyof ReadValues): ReadValues[typeof element] | undefined {
+  GetValue<E extends keyof ReadValues> (element: E): ReadValues[E] | undefined {
     if (isReadablElement[element]) {
       console.log(`GetValue(${element}) return ${this.values[element]}`);
       return this.values[element];
