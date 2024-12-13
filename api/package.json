@@ -4,7 +4,7 @@
   "description": "API between SCORM courses and their players",
   "author": "Bizzarq Software",
   "license": "ISC",
-  "main": "main.ts",
+  "main": "src/main.ts",
   "typings": "src/main.ts",
   "scripts": {
     "build": "tsc",
