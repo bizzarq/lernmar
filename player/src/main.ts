@@ -124,7 +124,7 @@ class ScormApi implements ScormApi_2004_4 {
   }
   lastError: number = 0;
 
-  Initialize(arg: ""): ScormBoolean {
+  Initialize(_arg: ""): ScormBoolean {
     console.log("Initialize()");
     return "true";
   }
@@ -153,24 +153,30 @@ class ScormApi implements ScormApi_2004_4 {
     return "true";
   }
 
-  Commit(arg: ""): ScormBoolean {
+  Commit(_arg: ""): ScormBoolean {
     console.log("Commit()");
     return "true";
   }
 
   GetLastError(): CMIErrorCode {
+    console.log("GetLastError()");
     return "0";
   }
 
   GetErrorString(errorCode: CMIErrorCode): string {
+    console.log(`GetErrorString(${errorCode})`);
     return "";
   }
 
   GetDiagnostic(errorCode: CMIErrorCode): string {
+    console.log(`GetDiagnostic(${errorCode})`);
     return "";
   }
 
 }
 
-
 window.API_1484_11 = new ScormApi();
+window.close = () => {
+  console.log("window.close(): call Terminate");
+  window.API_1484_11.Terminate("");
+}
