@@ -1,3 +1,4 @@
 node_modules/
 dist/player/js/
 dist/player/courses/
+dist/wrapper/js/

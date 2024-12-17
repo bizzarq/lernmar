@@ -1,7 +1,10 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/player/main.ts',
+  entry: {
+    'player/js/main': './src/player/main.ts',
+    'wrapper/js/main': './src/wrapper/main.ts'
+  },
   module: {
     rules: [
       {
@@ -15,8 +18,10 @@ module.exports = {
     extensions: ['.ts', '.js'],
   },
   output: {
-    filename: 'main.js',
-    path: path.resolve(__dirname, 'dist/player/js'),
-    clean: true,
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: {
+      keep: /(player\/[^\/]+|player\/courses|wrapper\/[^\/]+)/
+    },
   },
 };

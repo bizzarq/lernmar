@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "outDir": "./dist/js/",
-    "module": "esnext",
-    "target": "es2020",
-    "moduleResolution": "node",
-    "strict": true,
-  },
-}
