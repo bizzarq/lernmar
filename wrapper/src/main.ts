@@ -1,4 +1,4 @@
-import { ScormPlayer2004_4 } from "lernmar-player/src/ScormPlayer2004_4";
+import { ScormPlayer2004_4 } from "lernmar-player/src/player/ScormPlayer2004_4";
 import { CourseWrapper } from "./CourseWrapper";
 import { CourseWrapper2004_4 } from "./CourseWrapper2004_4"; 
 
