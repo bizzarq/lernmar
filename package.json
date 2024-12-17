@@ -1,7 +1,7 @@
 {
-  "name": "lernmar-player",
-  "version": "0.1.0",
-  "description": "A player for SCORM courses",
+  "name": "lernmar",
+  "version": "0.2.0",
+  "description": "library for creating and playing SCORM courses",
   "author": "Bizzarq Software",
   "license": "MIT",
   "main": "src/player/main.ts",
