@@ -1,3 +1,3 @@
 node_modules/
-dist/js/
-dist/courses/
+dist/player/js/
+dist/player/courses/

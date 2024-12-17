@@ -4,12 +4,12 @@
   "description": "A player for SCORM courses",
   "author": "Bizzarq Software",
   "license": "MIT",
-  "main": "src/main.ts",
-  "typings": "src/main.ts",
+  "main": "src/player/main.ts",
+  "typings": "src/player/main.ts",
   "scripts": {
     "dev-build": "npx webpack --config webpack.dev.js",
     "build": "npx webpack --config webpack.prod.js",
-    "serve": "python -m http.server -d dist/ || python3 -m http.server -d dist/"
+    "serve": "python -m http.server -d dist/player || python3 -m http.server -d dist/player"
   },
   "devDependencies": {
     "ts-loader": "^9.5.1",

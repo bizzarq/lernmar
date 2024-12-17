@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/js/",
+    "outDir": "./dist/player/js/",
     "module": "esnext",
     "target": "es2020",
     "moduleResolution": "node",
