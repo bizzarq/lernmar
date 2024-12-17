@@ -16,8 +16,5 @@
     "typescript": "^5.5.3",
     "webpack": "^5.92.1",
     "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
-    "lernmar-api": "file:../api"
   }
 }

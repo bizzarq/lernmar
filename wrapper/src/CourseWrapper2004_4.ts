@@ -1,4 +1,4 @@
-import type { ScormApi_2004_4 } from "lernmar-api/src/scorm2004_4";
+import type { ScormApi_2004_4 } from "lernmar-player/src/api/ScormApi2004_4";
 import type { CourseWrapper } from "./CourseWrapper";
 
 

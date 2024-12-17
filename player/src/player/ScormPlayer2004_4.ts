@@ -1,6 +1,6 @@
 import type {
   ScormApi_2004_4, ScormBoolean, CMIErrorCode, ReadValues, WriteValues, Values,
-} from "lernmar-api/src/scorm2004_4";
+} from "../api/ScormApi2004_4";
 
 
 let isReadablElement: Record<keyof ReadValues, true> = {
