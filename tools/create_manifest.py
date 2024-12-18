@@ -22,11 +22,20 @@ def create_manifest(path: str, name: Optional[str]=None, entry: Optional[str]=No
     if not os.path.isfile(entry_path):
         raise Exception(f'cannot find entry document in {entry_path}')
 
-    manifest = ElementTree.Element('manifest')
+    manifest_attributes = {
+        # creating a globally unique identifier, should be configurable in future
+        'identifier': uuid.uuid4().hex,
+        # version should also be configurable
+        'version': '1',
+        'xmlns:adlcp': 'http://www.adlnet.org/xsd/adlcp_v1p3',
+        'xmlns:adlseq': 'http://www.adlnet.org/xsd/adlseq_v1p3',
+    }
+
+
+    manifest = ElementTree.Element('manifest', attrib=manifest_attributes)
     _add_metadata(manifest)
     _add_organizations(manifest, name=name)
     _add_resources(manifest, path=path, entry=entry)
-
 
     filename = os.path.join(path, 'imsmanifest.xml')
     tree = ElementTree.ElementTree(manifest)
@@ -34,13 +43,7 @@ def create_manifest(path: str, name: Optional[str]=None, entry: Optional[str]=No
     tree.write(filename, encoding='UTF-8', xml_declaration=True)
 
 def _add_metadata(parent: ElementTree.Element):
-    md_attributes = {
-        # creating a globally unique identifier, should be configurable in future
-        'identifier': uuid.uuid4().hex,
-        # version should also be configurable
-        'version': '1'
-    }
-    metadata = ElementTree.SubElement(parent, 'metadata', attrib=md_attributes)
+    metadata = ElementTree.SubElement(parent, 'metadata')
     schema = ElementTree.SubElement(metadata, 'schema')
     schema.text = 'ADL SCORM'
     schemaversion = ElementTree.SubElement(metadata, 'schemaversion')
@@ -79,7 +82,7 @@ def _add_resources(parent: ElementTree.ElementTree, path: str, entry: str):
     ignores = {'imsmanifest.xml'}
     while dir_todos:
         path1, path2 = dir_todos.pop(0)
-        print(f'process {path1} {path2}')
+        # print(f'process {path1} {path2}')
         if path2 in ignores:
             path
         elif os.path.isdir(path1):
