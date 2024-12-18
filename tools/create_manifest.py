@@ -1,4 +1,5 @@
 from typing import Optional
+import os
 import posixpath
 import uuid
 from xml.etree import ElementTree
@@ -93,7 +94,6 @@ def _add_resources(parent: ElementTree.ElementTree, path: str, entry: str):
 
 if __name__ == '__main__':
     import argparse
-    import os
     parser = argparse.ArgumentParser(
         description='creates a SCORM manifest file for a course.')
     parser.add_argument('path',
