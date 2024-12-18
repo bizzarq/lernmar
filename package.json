@@ -1,6 +1,6 @@
 {
   "name": "lernmar",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Typescript library for creating and playing SCORM courses",
   "author": "Bizzarq Software",
   "license": "MIT",
