@@ -21,7 +21,7 @@ module.exports = {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
     clean: {
-      keep: /(player\/[^\/]+|player\/courses|wrapper\/[^\/]+)/
+      keep: /^(player|wrapper)\/(?!js).+$/
     },
   },
 };
