@@ -39,7 +39,7 @@ let isWritableElement: Record<keyof WriteValues, true> = {
 }
 
 
-class ScormPlayer2004_4 implements ScormApi_2004_4 {
+class CoursePlayer2004_4 implements ScormApi_2004_4 {
 
   values: Values = {
     "cmi._version": "2004 4th Edition",
@@ -119,4 +119,4 @@ class ScormPlayer2004_4 implements ScormApi_2004_4 {
 }
 
 
-export { ScormPlayer2004_4 };
+export { CoursePlayer2004_4 };

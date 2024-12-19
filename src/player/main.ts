@@ -1,4 +1,4 @@
-import { ScormPlayer2004_4 } from "./ScormPlayer2004_4";
+import { CoursePlayer2004_4 } from "./CoursePlayer2004_4";
 
 let section = document.getElementById("lernmar");
 
@@ -61,7 +61,7 @@ function playCourse(section: HTMLElement, course: Course) {
 }
 
 
-let player = new ScormPlayer2004_4();
+let player = new CoursePlayer2004_4();
 player.onTerminate = () => {
   renderIndex(section);
 }
