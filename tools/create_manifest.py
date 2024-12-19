@@ -27,6 +27,7 @@ def create_manifest(path: str, name: Optional[str]=None, entry: Optional[str]=No
         'identifier': uuid.uuid4().hex,
         # version should also be configurable
         'version': '1',
+        'xmlns': 'http://www.imsglobal.org/xsd/imscp_v1p1',
         'xmlns:adlcp': 'http://www.adlnet.org/xsd/adlcp_v1p3',
         'xmlns:adlseq': 'http://www.adlnet.org/xsd/adlseq_v1p3',
     }
