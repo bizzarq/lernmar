@@ -14,6 +14,18 @@ interface Course {
  * selected, starts it in the respective player.
  */
 class CourseManager {
+  #courseUrl;
+
+  /**
+   * constructor.
+   * @param courseUrl url of course directory (in which the index.json file is placed). default is
+   *    "" (same directory as page). if it is not "", it should end with "/".
+   *    example: "https://www.example.com/courses/". relative paths are relative to the page, this
+   *    script is executed in. examples: "" or "courses/".
+   */
+  constructor(courseUrl?: string) {
+    this.#courseUrl = courseUrl ? courseUrl : "";
+  }
 
   /**
    * start managing courses.
@@ -32,7 +44,7 @@ class CourseManager {
    */
   async #renderIndex(section: HTMLElement) {
     try {
-      let response = await fetch('courses/index.json');
+      let response = await fetch(`${this.#courseUrl}index.json`);
       let index = await response.json();
       let entries = document.createElement("section");
       entries.classList.add("index");
@@ -75,7 +87,7 @@ class CourseManager {
 
     let iframe = document.createElement("iframe");
     iframe.title = course.name;
-    iframe.src = `courses/${course.path}`;
+    iframe.src = `${this.#courseUrl}/${course.path}`;
     iframe.width = "100%";
     iframe.height = section.clientHeight.toString();
     section.replaceChildren(iframe);

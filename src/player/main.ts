@@ -6,5 +6,5 @@ if (!section) {
   throw new Error("could not find lernmar root element.");
 }
 
-let manager = new CourseManager();
+let manager = new CourseManager('courses/');
 manager.start(section);
