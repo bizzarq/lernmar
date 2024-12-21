@@ -3,6 +3,22 @@ interface Learner {
   readonly name: string,
 }
 
+/**
+ * The result of a course activity.
+ * @param success whether activity was completed with success. the course itself needs to decide
+ *    whether an unsuccessful part can be re-taken or not. default value is true.
+ * @param score score achieved. if given must be >= 0. if omitted, no score is recorded.
+ * @param maxScore: maximum score possible for this activity. must be >= score.
+ */
+interface CourseActivityResult {
+  success: boolean,
+  score?: number,
+  maxScore?: number,
+}
+
+/**
+ * A wrapper around a digital course which connects to a learn management system like SCORM.
+ */
 interface CourseWrapper {
 
   /**
@@ -52,12 +68,9 @@ interface CourseWrapper {
   /**
    * mark an activity (e.g. a chapter or a slide) of this course as completed.
    * @param name name of activity (must be unique).
-   * @param success whether activity was completed with success. the course itself needs to decide
-   *    whether an unsuccessful part can be re-taken or not. default value is true.
-   * @param score score achieved. if given must be >= 0. if omitted, no score is recorded.
-   * @param maxScore: maximum score possible for this part. must be >= score.
+   * @param result result of the activity.
    */
-  completeActivity(name: string, success?: boolean, score?: number, maxScore?: number): Promise<void>;
+  completeActivity(name: string, result: CourseActivityResult): Promise<void>;
 
   /**
    * get the current state of an activity (e.g. a chapter or a slide). this includes also
@@ -69,4 +82,4 @@ interface CourseWrapper {
 }
 
 
-export { CourseWrapper };
+export { CourseWrapper, CourseActivityResult };

@@ -1,5 +1,5 @@
 import type { ScormApi_2004_4 } from "../api/ScormApi2004_4";
-import type { CourseWrapper } from "./CourseWrapper";
+import type { CourseActivityResult, CourseWrapper } from "./CourseWrapper";
 
 
 class CourseWrapper2004_4 implements CourseWrapper{
@@ -69,22 +69,22 @@ class CourseWrapper2004_4 implements CourseWrapper{
     return [false, false];
   }
 
-  async completeActivity(name: string, success: boolean, score?: number, maxScore?: number): Promise<void> {
+  async completeActivity(name: string, result: CourseActivityResult): Promise<void> {
     let api = await this.#initialize();
     let achievement: [boolean, boolean, number] | [boolean, boolean];
-    if (typeof score !== "undefined") {
-      if (score < 0) {
+    if (typeof result.score !== "undefined") {
+      if (result.score < 0) {
         throw Error("score must be >= 0");
       }
-      let maxScore2 = maxScore ? maxScore : score;
-      api.SetValue("cmi.score.raw", score.toString());
+      let maxScore2 = result.maxScore ? result.maxScore : result.score;
+      api.SetValue("cmi.score.raw", result.score.toString());
       api.SetValue("cmi.score.max", maxScore2.toString());
       api.SetValue("cmi.score.min", "0");
-      api.SetValue("cmi.score.scaled", (maxScore2 > 0 ? score / maxScore2 : 1).toString());
-      achievement = [true, success, score];
+      api.SetValue("cmi.score.scaled", (maxScore2 > 0 ? result.score / maxScore2 : 1).toString());
+      achievement = [true, result.success, result.score];
     }
     else {
-      achievement = [true, success];
+      achievement = [true, result.success];
     }
     this.#achievements[name] = achievement;
     api.SetValue("cmi.suspend_data", JSON.stringify(this.#achievements));
