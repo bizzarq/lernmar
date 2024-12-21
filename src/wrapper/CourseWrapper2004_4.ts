@@ -49,18 +49,18 @@ class CourseWrapper2004_4 implements CourseWrapper{
     };
   }
 
-  async startPart(name: string): Promise<void> {
+  async setCurrentActivity(name: string): Promise<void> {
     let api = await this.#initialize();
     this.#location = name;
     api.SetValue("cmi.location", name);
   }
 
-  async getLastStartedPart(): Promise<string | null> {
+  async getCurrentActivity(): Promise<string | null> {
     await this.#initialize();
     return this.#location;
   }
 
-  async getPartState(name: string): Promise<[boolean, boolean, number] | [boolean, boolean]> {
+  async activityState(name: string): Promise<[boolean, boolean, number] | [boolean, boolean]> {
     await this.#initialize();
     let achievement = this.#achievements[name];
     if (achievement) {
@@ -69,7 +69,7 @@ class CourseWrapper2004_4 implements CourseWrapper{
     return [false, false];
   }
 
-  async completePart(name: string, success: boolean, score?: number, maxScore?: number): Promise<void> {
+  async completeActivity(name: string, success: boolean, score?: number, maxScore?: number): Promise<void> {
     let api = await this.#initialize();
     let achievement: [boolean, boolean, number] | [boolean, boolean];
     if (typeof score !== "undefined") {

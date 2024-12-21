@@ -3,10 +3,6 @@ interface Learner {
   readonly name: string,
 }
 
-interface CourseParts {
-  [name: string]: {required?: boolean, maxScore?: number},
-}
-
 interface CourseWrapper {
 
   /**
@@ -40,36 +36,36 @@ interface CourseWrapper {
   getLearner(): Promise<Learner>;
 
   /**
-   * start a part of the course (e.g. a chapter or a slide). calling this function is not required.
-   * however, if it is not called, it will not be possible to resume sessions at the part it was
-   * interrupted before.
-   * @param name: name of part (must be unique).
+   * sets the current course activity (e.g. a chapter or a slide). calling this function is not
+   * required. however, if it is not called, it will not be possible to resume sessions at the
+   * activity it was interrupted before.
+   * @param name: name of activity (must be unique).
    */
-  startPart(name: string): Promise<void>;
+  setCurrentActivity(name: string): Promise<void>;
 
   /**
-   * @returns the name of last known part which was started with startPart() or null if last part
-   *   is not known.
+   * @returns the name of last current activity registered with setCurrentActivity() or null if
+   *  there is no current activity registered.
    */
-  getLastStartedPart(): Promise<string | null>;
+  getCurrentActivity(): Promise<string | null>;
 
   /**
-   * mark a part (e.g. a chapter or a slide) of this course as completed.
-   * @param name name of part (must be unique).
-   * @param success whether the part was completed with success. the course itself needs to decide
+   * mark an activity (e.g. a chapter or a slide) of this course as completed.
+   * @param name name of activity (must be unique).
+   * @param success whether activity was completed with success. the course itself needs to decide
    *    whether an unsuccessful part can be re-taken or not. default value is true.
-   * @param score score achieved. must be >= 0. if omitted, no score is recorded.
+   * @param score score achieved. if given must be >= 0. if omitted, no score is recorded.
    * @param maxScore: maximum score possible for this part. must be >= score.
    */
-  completePart(name: string, success?: boolean, score?: number, maxScore?: number): Promise<void>;
+  completeActivity(name: string, success?: boolean, score?: number, maxScore?: number): Promise<void>;
 
   /**
-   * get the current state of a course part (e.g. a chapter or a slide). this includes also
+   * get the current state of an activity (e.g. a chapter or a slide). this includes also
    * information from previouse sessions (if they had been recorded).
-   * @param name name of part.
-   * @returns whether the part was completed, and if yes, if it was successful and the reported score.
+   * @param name name of activity.
+   * @returns whether activity was completed, and if yes, if it was successful and the reported score.
    */
-  getPartState(name: string): Promise<[boolean, boolean, number] | [boolean, boolean]>;
+  activityState(name: string): Promise<[boolean, boolean, number] | [boolean, boolean]>;
 }
 
 
