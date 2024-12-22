@@ -1,6 +1,8 @@
+import { isCourseActivityState } from "./CourseActivityState";
 import type { ScormApi_2004_4 } from "../api/ScormApi2004_4";
-import { isCourseActivityState, type CourseActivityState } from "./CourseActivityState";
+import type { CourseActivityState } from "./CourseActivityState";
 import type { CourseWrapper } from "./CourseWrapper";
+import { CourseProgress } from "./CourseProgress";
 
 
 class CourseWrapper2004_4 implements CourseWrapper {
@@ -27,16 +29,27 @@ class CourseWrapper2004_4 implements CourseWrapper {
     this.#isInitialized = false;
   }
 
-  async reportProgress(progress: number, success?: boolean): Promise<void> {
+  async reportProgress(progress: CourseProgress): Promise<void> {
     let api = await this.#initialize();
-    progress = progress > 1 ? 1 : (progress < 0 ? 0 : progress);
-    if (typeof success === "undefined" || progress < 1) {
-      success = progress == 1;
-    }
-    api.SetValue("cmi.completion_status", progress == 1 ? "completed" : "incomplete");
-    api.SetValue("cmi.progress_measure", progress.toString());
-    api.SetValue("cmi.success_status", success ? "passed" : "failed");
+    let progress2 = progress.progress > 1 ? 1 : (progress.progress < 0 ? 0 : progress.progress);
+    api.SetValue("cmi.completion_status", progress2 == 1 ? "completed" : "incomplete");
+    api.SetValue("cmi.progress_measure", progress2.toString());
+    api.SetValue("cmi.success_status", progress.success ? "passed" : "failed");
     api.Commit("");
+  }
+
+  statistics(): [ number, number, number ] {
+    let result: [ number, number, number ] = [ 0, 0, 0 ];
+    for (let state of Object.values(this.#activityStates)) {
+      result[0] += 1;
+      if (state.complete) {
+        result[1] += 1;
+        if (state.success) {
+          result[2] += 1;
+        }
+      }
+    }
+    return result;
   }
 
   async getLearner() {

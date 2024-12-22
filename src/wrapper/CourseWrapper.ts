@@ -1,10 +1,11 @@
-import { CourseActivityState } from "./CourseActivityState";
+import type { CourseActivityState } from "./CourseActivityState";
+import type { CourseProgress } from "./CourseProgress";
+
 
 interface Learner {
   readonly id: string,
   readonly name: string,
 }
-
 
 /**
  * A wrapper around a digital course which connects to a learn management system like SCORM.
@@ -23,16 +24,19 @@ interface CourseWrapper {
 
   /**
    * report course progress to the Learn Management System.
-   * @param progress the progress inside the course as a number between 0 (not started) and 1
-   *   (complete).
-   * the other functions is called.
-   * @param success whether the course was completed successfully. overwritten with false if 
-   * progress < 1. if undefined set to progress == 1.
+   * @param progress progress of course execution.
    */
-  reportProgress(progress: number, success?: boolean): Promise<void>;
+  reportProgress(progress: CourseProgress): Promise<void>;
+
+  /**
+   * @return statistics from the activity states reported
+   * [ number of activities, number of activities completed, number of success activities ].
+   */
+  statistics(): [number, number, number];
 
   /**
    * get the learner data (id and name).
+   * @return learner data.
    */
   getLearner(): Promise<Learner>;
 
