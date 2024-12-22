@@ -1,8 +1,9 @@
 import type { ScormApi_2004_4 } from "../api/ScormApi2004_4";
-import type { CourseActivityResult, CourseWrapper } from "./CourseWrapper";
+import { isCourseActivityState, type CourseActivityState } from "./CourseActivityState";
+import type { CourseWrapper } from "./CourseWrapper";
 
 
-class CourseWrapper2004_4 implements CourseWrapper{
+class CourseWrapper2004_4 implements CourseWrapper {
   #apiMaxTries = 20;
   #api: ScormApi_2004_4 | undefined;
   #isInitialized: boolean = false;
@@ -10,10 +11,10 @@ class CourseWrapper2004_4 implements CourseWrapper{
   completionStatus = "unknown";
   passedStatus = "unknown";
   #location: string | null = null;
-  #achievements: {[name: string]: [boolean, boolean, number] | [boolean, boolean]};
+  #activityStates: Record<string, CourseActivityState>;
 
   constructor() {
-    this.#achievements = {};
+    this.#activityStates = {};
   }
 
   async start(): Promise<void> {
@@ -60,34 +61,27 @@ class CourseWrapper2004_4 implements CourseWrapper{
     return this.#location;
   }
 
-  async activityState(name: string): Promise<[boolean, boolean, number] | [boolean, boolean]> {
+  async getActivityState(name: string): Promise<CourseActivityState> {
     await this.#initialize();
-    let achievement = this.#achievements[name];
+    let achievement = this.#activityStates[name];
     if (achievement) {
       return achievement;
     }
-    return [false, false];
+    return {complete: false};
   }
 
-  async completeActivity(name: string, result: CourseActivityResult): Promise<void> {
+  async setActivityState(name: string, state: CourseActivityState): Promise<void> {
     let api = await this.#initialize();
-    let achievement: [boolean, boolean, number] | [boolean, boolean];
-    if (typeof result.score !== "undefined") {
-      if (result.score < 0) {
-        throw Error("score must be >= 0");
-      }
-      let maxScore2 = result.maxScore ? result.maxScore : result.score;
-      api.SetValue("cmi.score.raw", result.score.toString());
-      api.SetValue("cmi.score.max", maxScore2.toString());
+    if ("score" in state) {
+      let raw = state.score > 0 ? state.score : 0;
+      let max = state.maxScore >= raw ? state.maxScore : raw;
+      api.SetValue("cmi.score.raw", raw.toString());
+      api.SetValue("cmi.score.max", max.toString());
       api.SetValue("cmi.score.min", "0");
-      api.SetValue("cmi.score.scaled", (maxScore2 > 0 ? result.score / maxScore2 : 1).toString());
-      achievement = [true, result.success, result.score];
+      api.SetValue("cmi.score.scaled", (max > 0 ? raw / max : 0).toString());
     }
-    else {
-      achievement = [true, result.success];
-    }
-    this.#achievements[name] = achievement;
-    api.SetValue("cmi.suspend_data", JSON.stringify(this.#achievements));
+    this.#activityStates[name] = state;
+    api.SetValue("cmi.suspend_data", JSON.stringify(this.#activityStates));
   }
 
   async #initialize(): Promise<ScormApi_2004_4> {
@@ -112,16 +106,13 @@ class CourseWrapper2004_4 implements CourseWrapper{
   #setInitData(api: ScormApi_2004_4) {
     let location = api.GetValue("cmi.location");
     this.#location = location ? location : null;
-    let achievementsString = api.GetValue("cmi.suspend_data");
-    if (typeof achievementsString === "string" && achievementsString != "") {
+    let activityStatesString = api.GetValue("cmi.suspend_data");
+    if (typeof activityStatesString === "string" && activityStatesString != "") {
       try {
-        let achievements = JSON.parse(achievementsString);
-        for (let [name, values] of Object.entries(achievements)) {
-          if (typeof name === "string" && Array.isArray(values) && values.length > 1
-            && typeof values[0] === "boolean" && typeof values[1] === "boolean"
-            && (values.length < 3 || typeof values[2] === "number")
-          ) {
-            this.#achievements[name] = values as [boolean, boolean, number] | [boolean, boolean];
+        let activityStates = JSON.parse(activityStatesString);
+        for (let [name, value] of Object.entries(activityStates)) {
+          if (typeof name === "string" && isCourseActivityState(value)) {
+            this.#activityStates[name] = value;
           }
           else {
             console.error(`cannot interpret suspend data for ${name}`);

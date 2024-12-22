@@ -5,7 +5,7 @@ import { CourseWrapper2004_4 } from "./CourseWrapper2004_4";
 
 async function testWrapper(wrapper: CourseWrapper) {
   await wrapper.setCurrentActivity("part 1");
-  await wrapper.completeActivity("part 1", {success: true});
+  await wrapper.setActivityState("part 1", {complete: true, success: true});
   await wrapper.reportProgress(0.5, true);
   await wrapper.setCurrentActivity("part 2");
   await wrapper.stop();
@@ -15,7 +15,7 @@ async function testWrapper(wrapper: CourseWrapper) {
   if (part != "part 2") {
     console.error(`unexpected last part ${part}`);
   };
-  await wrapper.completeActivity("part 2", {success: true, score: 9, maxScore: 10});
+  await wrapper.setActivityState("part 2", {complete: true, success: true, score: 9, maxScore: 10});
   await wrapper.stop(1, true);
 }
 

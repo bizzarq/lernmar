@@ -1,20 +1,10 @@
+import { CourseActivityState } from "./CourseActivityState";
+
 interface Learner {
   readonly id: string,
   readonly name: string,
 }
 
-/**
- * The result of a course activity.
- * @param success whether activity was completed with success. the course itself needs to decide
- *    whether an unsuccessful part can be re-taken or not. default value is true.
- * @param score score achieved. if given must be >= 0. if omitted, no score is recorded.
- * @param maxScore: maximum score possible for this activity. must be >= score.
- */
-interface CourseActivityResult {
-  success: boolean,
-  score?: number,
-  maxScore?: number,
-}
 
 /**
  * A wrapper around a digital course which connects to a learn management system like SCORM.
@@ -66,20 +56,20 @@ interface CourseWrapper {
   getCurrentActivity(): Promise<string | null>;
 
   /**
-   * mark an activity (e.g. a chapter or a slide) of this course as completed.
+   * set the state of an activity (e.g. a chapter or a slide).
    * @param name name of activity (must be unique).
-   * @param result result of the activity.
+   * @param state state of the activity.
    */
-  completeActivity(name: string, result: CourseActivityResult): Promise<void>;
+  setActivityState(name: string, state: CourseActivityState): Promise<void>;
 
   /**
    * get the current state of an activity (e.g. a chapter or a slide). this includes also
    * information from previouse sessions (if they had been recorded).
    * @param name name of activity.
-   * @returns whether activity was completed, and if yes, if it was successful and the reported score.
+   * @returns the activity state.
    */
-  activityState(name: string): Promise<[boolean, boolean, number] | [boolean, boolean]>;
+  getActivityState(name: string): Promise<CourseActivityState>;
 }
 
 
-export { CourseWrapper, CourseActivityResult };
+export { CourseWrapper };
