@@ -18,13 +18,8 @@ interface CourseWrapper {
 
   /**
    * stop the course and hand over to the Learn Management System.
-   * @param progress the progress inside the course as a number between 0 (not started) and 1
-   *   (complete). if omitted, no progress will be reported to the LMS.
-   * @param success whether the course was completed successfully.
-   *  ignored if progress is undefined, overwritten with false if progress < 1.
-   *  if undefined set to progress == 1.
    */
-  stop(progress?: number, success?: boolean): Promise<void>;
+  stop(): Promise<void>;
 
   /**
    * report course progress to the Learn Management System.

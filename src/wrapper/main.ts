@@ -16,7 +16,8 @@ async function testWrapper(wrapper: CourseWrapper) {
     console.error(`unexpected last part ${part}`);
   };
   await wrapper.setActivityState("part 2", {complete: true, success: true, score: 9, maxScore: 10});
-  await wrapper.stop(1, true);
+  await wrapper.reportProgress(1, true);
+  await wrapper.stop();
 }
 
 

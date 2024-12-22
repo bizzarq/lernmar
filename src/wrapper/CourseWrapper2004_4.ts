@@ -21,11 +21,8 @@ class CourseWrapper2004_4 implements CourseWrapper {
     await this.#initialize();
   }
 
-  async stop(progress?: number, success?: boolean): Promise<void> {
+  async stop(): Promise<void> {
     let api = await this.#initialize();
-    if (progress) {
-      await this.reportProgress(progress, success);
-    }
     api.Terminate("");
     this.#isInitialized = false;
   }
