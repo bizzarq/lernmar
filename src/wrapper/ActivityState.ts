@@ -7,13 +7,13 @@
  * @property {number} score score achieved. must be >= 0. if omitted, no score is recorded.
  * @property {number} maxScore: maximum score possible for this activity. must be >= score.
  */
-type CourseActivityState =
+type ActivityState =
   { mandatory: boolean, complete: false } |
   { mandatory: boolean, complete: false, score: number, maxScore: number } |
   { mandatory: boolean, complete: true, success: boolean } |
   { mandatory: boolean, complete: true, success: boolean, score: number, maxScore: number };
 
-function isCourseActivityState(state: any): state is CourseActivityState {
+function isActivityState(state: any): state is ActivityState {
   if (state.complete && typeof state.success !== "boolean") {
     return false;
   }
@@ -24,5 +24,5 @@ function isCourseActivityState(state: any): state is CourseActivityState {
 }
 
 
-export type { CourseActivityState };
-export { isCourseActivityState};
+export type { ActivityState };
+export { isActivityState as isActivityState};

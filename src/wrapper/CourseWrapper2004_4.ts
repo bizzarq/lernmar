@@ -1,6 +1,6 @@
-import { isCourseActivityState } from "./CourseActivityState";
+import { isActivityState } from "./ActivityState";
 import type { ScormApi_2004_4 } from "../api/ScormApi2004_4";
-import type { CourseActivityState } from "./CourseActivityState";
+import type { ActivityState } from "./ActivityState";
 import type { CourseStatistics, CourseWrapper } from "./CourseWrapper";
 import { CourseProgress } from "./CourseProgress";
 
@@ -13,7 +13,7 @@ class CourseWrapper2004_4 implements CourseWrapper {
   completionStatus = "unknown";
   passedStatus = "unknown";
   #location: string | null = null;
-  #activityStates: Record<string, CourseActivityState>;
+  #activityStates: Record<string, ActivityState>;
 
   constructor() {
     this.#activityStates = {};
@@ -76,7 +76,7 @@ class CourseWrapper2004_4 implements CourseWrapper {
     return this.#location;
   }
 
-  async getActivityState(name: string): Promise<CourseActivityState | null> {
+  async getActivityState(name: string): Promise<ActivityState | null> {
     await this.#initialize();
     let achievement = this.#activityStates[name];
     if (achievement) {
@@ -85,7 +85,7 @@ class CourseWrapper2004_4 implements CourseWrapper {
     return null;
   }
 
-  async setActivityState(name: string, state: CourseActivityState): Promise<void> {
+  async setActivityState(name: string, state: ActivityState): Promise<void> {
     let api = await this.#initialize();
     if ("score" in state) {
       let raw = state.score > 0 ? state.score : 0;
@@ -126,7 +126,7 @@ class CourseWrapper2004_4 implements CourseWrapper {
       try {
         let activityStates = JSON.parse(activityStatesString);
         for (let [name, value] of Object.entries(activityStates)) {
-          if (typeof name === "string" && isCourseActivityState(value)) {
+          if (typeof name === "string" && isActivityState(value)) {
             this.#activityStates[name] = value;
           }
           else {

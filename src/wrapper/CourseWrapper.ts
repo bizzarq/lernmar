@@ -1,4 +1,4 @@
-import type { CourseActivityState } from "./CourseActivityState";
+import type { ActivityState } from "./ActivityState";
 import type { CourseProgress } from "./CourseProgress";
 
 
@@ -72,7 +72,7 @@ interface CourseWrapper {
    * @param name name of activity (must be unique).
    * @param state state of the activity.
    */
-  setActivityState(name: string, state: CourseActivityState): Promise<void>;
+  setActivityState(name: string, state: ActivityState): Promise<void>;
 
   /**
    * get the current state of an activity (e.g. a chapter or a slide). this includes also
@@ -80,7 +80,7 @@ interface CourseWrapper {
    * @param name name of activity.
    * @returns the activity state or null if state is not known.
    */
-  getActivityState(name: string): Promise<CourseActivityState | null>;
+  getActivityState(name: string): Promise<ActivityState | null>;
 }
 
 
