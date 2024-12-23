@@ -1,7 +1,7 @@
 import { isCourseActivityState } from "./CourseActivityState";
 import type { ScormApi_2004_4 } from "../api/ScormApi2004_4";
 import type { CourseActivityState } from "./CourseActivityState";
-import type { CourseWrapper } from "./CourseWrapper";
+import type { CourseStatistics, CourseWrapper } from "./CourseWrapper";
 import { CourseProgress } from "./CourseProgress";
 
 
@@ -38,14 +38,19 @@ class CourseWrapper2004_4 implements CourseWrapper {
     api.Commit("");
   }
 
-  statistics(): [ number, number, number ] {
-    let result: [ number, number, number ] = [ 0, 0, 0 ];
+  statistics(): CourseStatistics {
+    let result: CourseStatistics = {
+      activityCount: 0, mandatoryCount: 0, completeCount: 0, successCount: 0
+    };
     for (let state of Object.values(this.#activityStates)) {
-      result[0] += 1;
-      if (state.complete) {
-        result[1] += 1;
-        if (state.success) {
-          result[2] += 1;
+      result.activityCount += 1;
+      if (state.mandatory) {
+        result.mandatoryCount += 1;
+        if (state.complete) {
+          result.completeCount += 1;
+          if (state.success) {
+            result.successCount += 1;
+          }
         }
       }
     }
@@ -71,13 +76,13 @@ class CourseWrapper2004_4 implements CourseWrapper {
     return this.#location;
   }
 
-  async getActivityState(name: string): Promise<CourseActivityState> {
+  async getActivityState(name: string): Promise<CourseActivityState | null> {
     await this.#initialize();
     let achievement = this.#activityStates[name];
     if (achievement) {
       return achievement;
     }
-    return {complete: false};
+    return null;
   }
 
   async setActivityState(name: string, state: CourseActivityState): Promise<void> {

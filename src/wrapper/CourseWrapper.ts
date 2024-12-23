@@ -8,6 +8,20 @@ interface Learner {
 }
 
 /**
+ * statistics of course progress.
+ * @property {number} activityCount number of started activities.
+ * @property {number} mandatoryCount number of started mandatory activities.
+ * @property {number} completeCount number of started mandatory activities completed.
+ * @property {number} successCount number of started mandatory activities completed successfully.
+ */
+interface CourseStatistics {
+  activityCount: number;
+  mandatoryCount: number;
+  completeCount: number;
+  successCount: number;
+}
+
+/**
  * A wrapper around a digital course which connects to a learn management system like SCORM.
  */
 interface CourseWrapper {
@@ -29,10 +43,9 @@ interface CourseWrapper {
   reportProgress(progress: CourseProgress): Promise<void>;
 
   /**
-   * @return statistics from the activity states reported
-   * [ number of activities, number of activities completed, number of success activities ].
+   * @return statistics from the activity states reported.
    */
-  statistics(): [number, number, number];
+  statistics(): CourseStatistics;
 
   /**
    * get the learner data (id and name).
@@ -65,10 +78,10 @@ interface CourseWrapper {
    * get the current state of an activity (e.g. a chapter or a slide). this includes also
    * information from previouse sessions (if they had been recorded).
    * @param name name of activity.
-   * @returns the activity state.
+   * @returns the activity state or null if state is not known.
    */
-  getActivityState(name: string): Promise<CourseActivityState>;
+  getActivityState(name: string): Promise<CourseActivityState | null>;
 }
 
 
-export { CourseWrapper };
+export type { CourseWrapper, CourseStatistics, Learner };
