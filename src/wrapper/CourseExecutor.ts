@@ -31,10 +31,9 @@ interface ExecutableCourse {
 
   /**
    * determine the next activity to execute in this course. the activities can be offered in any
-   * ord  #statistics: CourseStatistics | undefined;
-er as long as all activities are offered once. the executor will only execute activities
+   * order as long as all activities are offered once. the executor will only execute activities
    * which are not complete yet.
-   * @return name of next activity.
+   * @return name of next activity. empty string if there is no activity left.
    */
   nextActivity(): string;
 
