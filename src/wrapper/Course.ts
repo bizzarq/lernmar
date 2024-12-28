@@ -1,17 +1,11 @@
+import { Activity } from "./Activity";
 import type { ActivityState } from "./ActivityState";
 import type { ExecutableCourse } from "./CourseExecutor";
 
 
-interface CourseActivity {
-  readonly name: string;
-  readonly isMandatory: boolean;
-  execute(section: HTMLElement): Promise<ActivityState>;
-}
-
-
 class Course implements ExecutableCourse {
   #section;
-  #nameActivities: Record<string, CourseActivity>;
+  #nameActivities: Record<string, Activity>;
   #incompletes: Array<string>;
   #incompleteId: number;
   #mandatoryActivities;
@@ -23,7 +17,7 @@ class Course implements ExecutableCourse {
    *   unique. the name "intro" is reserved for activities which are called in the very beginning
    *   (before the connection to the learn management system is completely established).
    */
-  constructor(section: HTMLElement, activities: Array<CourseActivity>) {
+  constructor(section: HTMLElement, activities: Array<Activity>) {
     this.#section = section;
     this.#nameActivities = {};
     this.#incompletes = [];
