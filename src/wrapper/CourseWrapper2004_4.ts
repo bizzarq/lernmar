@@ -1,4 +1,5 @@
 import { isActivityState } from "./ActivityState";
+import { findApi } from "../api/findApi2004_4";
 import type { ScormApi_2004_4 } from "../api/ScormApi2004_4";
 import type { ActivityState } from "./ActivityState";
 import type { CourseStatistics, CourseWrapper } from "./CourseWrapper";
@@ -6,7 +7,6 @@ import { CourseProgress } from "./CourseProgress";
 
 
 class CourseWrapper2004_4 implements CourseWrapper {
-  #apiMaxTries = 20;
   #api: ScormApi_2004_4 | undefined;
   #isInitialized: boolean = false;
 
@@ -105,7 +105,7 @@ class CourseWrapper2004_4 implements CourseWrapper {
       api = this.#api;
     }
     else {
-      api = this.#findApi();
+      api = findApi();
       this.#api = api;  
     }
     if (this.#isInitialized) {
@@ -138,24 +138,6 @@ class CourseWrapper2004_4 implements CourseWrapper {
         console.error("cannot interpret suspend data");
       }
     }
-  }
-
-  #findApi(): ScormApi_2004_4 {
-    let todos: Array<Window> = [window, window.opener];
-    let tries = 0
-    while (todos.length > 0 && tries < this.#apiMaxTries) {
-      let testWindow = todos.shift();
-      if (testWindow) {
-        if (testWindow.API_1484_11) {
-          return testWindow.API_1484_11;
-        }
-        let parent: Window | undefined = testWindow.parent;
-        if (parent && parent != testWindow) {
-          todos.unshift(parent);
-        }
-      }
-    }
-    throw new Error("cannot find Scorm API");
   }
 
 }
