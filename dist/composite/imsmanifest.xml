@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<manifest identifier="73d09110cb2048a7b14edd3b8722cf56" version="1" xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3" xmlns:adlseq="http://www.adlnet.org/xsd/adlseq_v1p3">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>2004 4th Edition</schemaversion>
+  </metadata>
+  <organizations default="composite">
+    <organization identifier="composite" adlseq:objectivesGlobalToSystem="false">
+      <title>composite</title>
+      <item identifier="item" identifierref="resource">
+        <title>composite</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="resource" type="webcontent" adlcp:scormType="sco" href="index.html">
+      <file href="courses/index.json" />
+      <file href="courses/test_course_1/imsmanifest.xml" />
+      <file href="courses/test_course_1/index.html" />
+      <file href="courses/test_course_2/imsmanifest.xml" />
+      <file href="courses/test_course_2/index.html" />
+      <file href="index.html" />
+      <file href="js/main.js" />
+      <file href="lernmar.svg" />
+      <file href="main.css" />
+    </resource>
+  </resources>
+</manifest>
