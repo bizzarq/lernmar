@@ -38,19 +38,16 @@
         description.innerHTML = "Initilization failed 😭";
       }
 
-      button.innerText = "Terminate";
+      button.innerText = "Close";
       button.onclick = () => {
-        terminate(api, button, description);
+        callClose(api, button, description);
       }
     }
 
-    function terminate(api, button, description) {
-      if (api?.Terminate("") == "true") {
-        description.innerText = " Terminated 😁";
-      }
-      else {
-        description.innerHTML = " Termination failed 😭";
-      }
+    function callClose(api, button, description) {
+      window.close();
+      window.parent.close();
+      description.innerHTML = "Closing failed 😭";
     }
 
     let api = findAPI();
