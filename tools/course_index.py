@@ -39,11 +39,22 @@ class CourseIndex:
         if there is already a course with the same name, the old entry will be deleted.
         @param course course to add.
         """
-        for old_course_id, old_course in enumerate(self._courses):
-            if course['name'] == old_course['name']:
-                del self._courses[old_course_id]
-                break
+        self.remove_course(course)
         self._courses.append(course)
+
+    def remove_course(self, course: Course) -> bool:
+        """
+        removes a course from the index.
+        only the course name is used to distinguish courses.
+        does nothing if the course is not in the index.
+        @param course course to remove.
+        @return whether the course existed (and was removed).
+        """
+        for course_id1, course1 in enumerate(self._courses):
+            if course['name'] == course1['name']:
+                del self._courses[course_id1]
+                return True
+        return False
 
     def __iter__(self):
         """
