@@ -2,6 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
+    'composite/js/main': './src/composite/main.ts',
     'player/js/main': './src/player/main.ts',
     'wrapper/js/main': './src/wrapper/main.ts'
   },
@@ -21,7 +22,7 @@ module.exports = {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
     clean: {
-      keep: /^(player|wrapper)\/(?!js).+$/
+      keep: /^(composite|player|wrapper)\/(?!js).+$/
     },
   },
 };

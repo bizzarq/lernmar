@@ -1,6 +1,6 @@
 {
   "name": "lernmar",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Typescript library and Python tools for creating and playing SCORM courses",
   "author": "Bizzarq Software",
   "license": "MIT",
@@ -9,8 +9,9 @@
   "scripts": {
     "dev-build": "npx webpack --config webpack.dev.js",
     "build": "npx webpack --config webpack.prod.js",
-    "player": "python -m http.server -d dist/player || python3 -m http.server -d dist/player",
-    "wrapper": "python -m http.server 8001 -d dist/wrapper || python3 -m http.server 8001 -d dist/wrapper"
+    "composite": "python -m http.server 8001 -d dist/composite || python3 -m http.server 8001 -d dist/composite",
+    "player": "python -m http.server 8002 -d dist/player || python3 -m http.server 8002 -d dist/player",
+    "wrapper": "python -m http.server 8003 -d dist/wrapper || python3 -m http.server 8003 -d dist/wrapper"
   },
   "devDependencies": {
     "ts-loader": "^9.5.1",
