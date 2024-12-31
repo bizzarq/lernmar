@@ -107,43 +107,44 @@ class CourseIndex:
         for name in os.listdir(course_dir):
             path = os.path.join(course_dir, name)
             if os.path.isdir(path):
-                course = self._scan_course(path)
-                self.add_course(course)
+                self.from_course(path)
         return index
 
-    def _scan_course(self, course_path: str) -> dict[str, Any] | None:
+    def from_course(self, course_path: str) -> bool:
         """
-        scans a course and generates and index entry for it.
+        scans a course and, if possible, generates an index entry for it.
         @param: course_path path of course in file sytem.
-        @return index entry for course.
+        @return whether the course was added to the index.
         """
         manifest_path = os.path.join(course_path, 'imsmanifest.xml')
         if not os.path.isfile(manifest_path):
-            return None
+            log(f'ignoring course {course_path} without manifest file')
+            return False
         tree = ElementTree.parse(manifest_path)
         root = tree.getroot()
         elem = root.find('{http://www.imsglobal.org/xsd/imscp_v1p1}resources/{http://www.imsglobal.org/xsd/imscp_v1p1}resource')
         if elem is None:
             log(f'ignoring course {course_path} without resource element')
-            return None
+            return False
         href = elem.get('href')
         if href is None:
             log(f'ignoring course {course_path} without reference to index file')
-            return None
+            return False
         course_path = os.path.normpath(course_path)
         parsed_href = urllib.parse.urlparse(href)
         if parsed_href.scheme != '' or parsed_href.netloc != '':
             log(f'ignoring course {course_path} without relative path reference')
-            return None
+            return False
         index_abs_path = os.path.normpath(os.path.join(course_path, parsed_href.path))
         if not index_abs_path.startswith(course_path) or not os.path.isfile(index_abs_path):
             log(f'ignoring course {course_path} whose index file is not within the course directory')
-            return None
+            return False
         name = os.path.basename(course_path)
         index_url = urllib.parse.urlunparse((
             '', '', f'{name}/{parsed_href.path}',
             parsed_href.params, parsed_href.query, parsed_href.fragment))
-        return {'name': name, 'path': index_url}
+        self.add_course({'name': name, 'path': index_url})
+        return True
 
 
 if __name__ == '__main__':
