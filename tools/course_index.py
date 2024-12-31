@@ -37,7 +37,7 @@ def write_index(course_dir: str, index: list[dict[str, Any]]) -> None:
     """
     path = os.path.join(course_dir, 'index.json')
     with open(path, mode='wt') as file:
-        json.dump({'courses': index}, file)
+        json.dump({'courses': index}, file, indent=2)
 
 def scan_course(course_dir: str, course_path: str) -> dict[str, Any] | None:
     """
