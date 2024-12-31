@@ -58,9 +58,10 @@ class CourseIndex:
 
     def __iter__(self):
         """
-        iterates over the courses inside the index.
+        iterates over the courses inside the index. the iterator operates on a copy of the data.
+        changes will not be reflected.
         """
-        return iter(self._courses)
+        return iter(list(self._courses))
 
     def read(self, path: Optional[str]=None) -> None:
         """
