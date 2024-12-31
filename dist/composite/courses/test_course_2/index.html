@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Course 2</title>
+</head>
+<body>
+  <section style="position: absolute; left: 50vw; top: 45vh; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center;">
+    <h1>Test Course 2</h1>
+    <section id="lernmar"></section>
+  </section>
+  <script>
+
+    function findAPI() {
+      maxTries = 20;
+      let todos = [window, window.opener];
+      let tries = 0
+      while (todos.length > 0 && tries < maxTries) {
+        let testWindow = todos.shift();
+        if (testWindow) {
+          if (testWindow.API_1484_11) {
+            return testWindow.API_1484_11;
+          }
+          let parent = testWindow.parent;
+          if (parent && parent != testWindow) {
+            todos.unshift(parent);
+          }
+        }
+      }
+    }
+
+    function initialize(api, button, description) {
+      if (api?.Initialize("") == "true") {
+        description.innerText = "Initialized 😁";
+      }
+      else {
+        description.innerHTML = "Initilization failed 😭";
+      }
+
+      button.innerText = "Terminate";
+      button.onclick = () => {
+        terminate(api, button, description);
+      }
+    }
+
+    function terminate(api, button, description) {
+      if (api?.Terminate("") == "true") {
+        description.innerText = " Terminated 😁";
+      }
+      else {
+        description.innerHTML = " Termination failed 😭";
+      }
+    }
+
+    let api = findAPI();
+    let section = document.getElementById("lernmar");
+    let button = document.createElement("button");
+    button.innerText = "Initialize";
+    let description = document.createElement("p");
+
+    button.onclick = () => {
+      initialize(api, button, description);
+    }
+    section.replaceChildren(button, description);
+  </script>
+</body>
+</html>
