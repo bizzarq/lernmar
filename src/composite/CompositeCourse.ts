@@ -55,6 +55,11 @@ class CompositeCourse {
     let adapter = new SubCourseAdapter2004_4(api, subCourses.length);
     window.API_1484_11 = adapter;
 
+    window.close = () => {
+      // if a course calls close(), gracefully terminate it in the adapter.
+      adapter.Terminate("");
+    }
+
     for (let course of subCourses) {
       adapter.startSubCourse(course.name);
       let subCourseEnd = new Promise<void>((resolve) => {
