@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<manifest identifier="cf1f581a77434a288249589571ed06c3" version="1" xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3" xmlns:adlseq="http://www.adlnet.org/xsd/adlseq_v1p3">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>2004 4th Edition</schemaversion>
+  </metadata>
+  <organizations default="test_course_1">
+    <organization identifier="test_course_1" adlseq:objectivesGlobalToSystem="false">
+      <title>test_course_1</title>
+      <item identifier="item" identifierref="resource">
+        <title>test_course_1</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="resource" type="webcontent" adlcp:scormType="sco" href="index.html">
+      <file href="index.html" />
+    </resource>
+  </resources>
+</manifest>
