@@ -1,0 +1,12 @@
+{
+  "courses": [
+    {
+      "name": "test_course_1",
+      "path": "test_course_1/index.html"
+    },
+    {
+      "name": "test_course_2",
+      "path": "test_course_2/index.html"
+    }
+  ]
+}
