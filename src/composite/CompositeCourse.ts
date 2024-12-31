@@ -1,4 +1,6 @@
 import { findApi } from "../api/findApi2004_4";
+import { ScormApi_2004_4 } from "../api/ScormApi2004_4";
+import { CoursePlayer2004_4 } from "../player/CoursePlayer2004_4";
 import { SubCourseAdapter2004_4 } from "./SubCourseAdapter2004_4";
 
 /**
@@ -15,8 +17,8 @@ class CompositeCourse {
 
   /**
    * constructor.
-   * @param courseUrl url of course directory (in which the index.json file is placed). default is
-   *    "" (same directory as page). if it is not "", it should end with "/".
+   * @param courseUrl url of course directory (in which the main index.html file is placed). default
+   *    is "" (same directory as page). if it is not "", it should end with "/".
    *    example: "https://www.example.com/my_course/".
    */
   constructor(courseUrl?: string) {
@@ -30,22 +32,43 @@ class CompositeCourse {
    */
   async start(section: HTMLElement) {
     let description = document.createElement("div");
-    description.innerText = "This is a Lernmar composite course";
+    description.innerText = "This is a Lernmar Composite Course";
     section.replaceChildren(description);
+
+    await this.#executeCourse(section);
+
+    description.innerText = "The End";
+    section.replaceChildren(description);
+  }
+
+  async #executeCourse(section: HTMLElement) {
     let subCourses = await this.#fetchSubCourses();
     // get the api of the parent window and set the api in this window
-    let api = findApi();
+    let api: ScormApi_2004_4;
+    try {
+      api = findApi();
+    }
+    catch {
+      console.log("Could not find scorm api. running in stand-alone mode.");
+      api = new CoursePlayer2004_4();
+    }
     let adapter = new SubCourseAdapter2004_4(api, subCourses.length);
     window.API_1484_11 = adapter;
 
     for (let course of subCourses) {
       adapter.startSubCourse(course.name);
+      let subCourseEnd = new Promise<void>((resolve) => {
+        adapter.onSubCourseEnd = () => resolve();
+      });
+
       let iframe = document.createElement("iframe");
-      iframe.title = course.name;
-      iframe.src = `${this.#courseUrl}/${course.path}`;
+      iframe.title = course.name
+      iframe.src = `${this.#courseUrl}courses/${course.path}`;
       iframe.width = "100%";
       iframe.height = section.clientHeight.toString();
       section.replaceChildren(iframe);
+
+      await subCourseEnd;
     }
   }
 
@@ -53,7 +76,7 @@ class CompositeCourse {
    * read the index.json file and return its entries.
    */
   async #fetchSubCourses(): Promise<Array<Course>> {
-    let url = `${this.#courseUrl}index.json`;
+    let url = `${this.#courseUrl}courses/index.json`;
     let subCourses: Array<Course> = [];
     try {
       let response = await fetch(url);
