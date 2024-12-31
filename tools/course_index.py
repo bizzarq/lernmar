@@ -45,6 +45,12 @@ class CourseIndex:
                 break
         self._courses.append(course)
 
+    def __iter__(self):
+        """
+        iterates over the courses inside the index.
+        """
+        return iter(self._courses)
+
     def read(self, path: Optional[str]=None) -> None:
         """
         reads an index from a file.
