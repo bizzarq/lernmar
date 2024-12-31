@@ -1,10 +1,18 @@
 import json
 import os
+import sys
 import urllib
 import urllib.parse
 from xml.etree import ElementTree
 from typing import Any
 
+
+def log(message: str) -> None:
+    """
+    logs a message to stderr.
+    @param message message to log.
+    """
+    print(message, file=sys.stderr)
 
 def generate_index(course_dir: str) -> list[dict[str, Any]]:
     """
@@ -45,18 +53,20 @@ def scan_course(course_dir: str, course_path: str) -> dict[str, Any] | None:
     root = tree.getroot()
     elem = root.find('{http://www.imsglobal.org/xsd/imscp_v1p1}resources/{http://www.imsglobal.org/xsd/imscp_v1p1}resource')
     if elem is None:
+        log(f'ignoring course {course_path} without resource element')
         return None
     href = elem.get('href')
     if href is None:
+        log(f'ignoring course {course_path} without reference to index file')
         return None
     course_path = os.path.normpath(course_path)
     parsed_href = urllib.parse.urlparse(href)
     if parsed_href.scheme != '' or parsed_href.netloc != '':
-        # ignore courses whose href is not a relative path
+        log(f'ignoring course {course_path} without relative path reference')
         return None
     index_abs_path = os.path.normpath(os.path.join(course_path, parsed_href.path))
     if not index_abs_path.startswith(course_path) or not os.path.isfile(index_abs_path):
-        # ignore courses whose index file is not within the course directory
+        log(f'ignoring course {course_path} whose index file is not within the course directory')
         return None
     name = os.path.basename(course_path)
     index_url = urllib.parse.urlunparse((
