@@ -90,6 +90,8 @@ class SubCourseAdapter2004_4 implements ScormApi_2004_4 {
     if (numberOfRemaining <= 0) {
       this.#player.SetValue("cmi.completion_status", "completed");
       this.#player.SetValue("cmi.progress_measure", "1");
+      this.#player.Commit("");
+      this.#player.Terminate("");
     }
     else if (this.#numberOfCourses > 0) {
       let progressMeasure = this.#currentId / this.#numberOfCourses;
