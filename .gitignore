@@ -3,3 +3,4 @@ dist/composite/js/
 dist/player/js/
 dist/player/courses/
 dist/wrapper/js/
+tools/__pycache__/
