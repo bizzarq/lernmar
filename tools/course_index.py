@@ -63,13 +63,16 @@ class CourseIndex:
         """
         return iter(list(self._courses))
 
-    def read(self, path: Optional[str]=None) -> None:
+    def read(self, path: Optional[str]=None) -> bool:
         """
         reads an index from a file.
         @param path path of index file. "index.json" in course directory if omitted.
+        @return whether the index was read successfully (which is false if tge file does not exist).
         """
         if path is None:
             path = os.path.join(self._course_dir, 'index.json')
+        if not os.path.isfile(path):
+            return False
         with open(path, mode='rt') as file:
             data = json.load(file)
             for course in data['courses']:
@@ -77,6 +80,7 @@ class CourseIndex:
                     self.add_course(course)
                 else:
                     log(f'ignoring invalid course entry {course}')
+        return True
 
     def write(self, path: Optional[str]=None) -> None:
         """
