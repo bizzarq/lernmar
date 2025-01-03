@@ -48,6 +48,7 @@ class Course implements ExecutableCourse {
           this.#incompletes.splice(incompleteId, 1);
         }
       }
+      return state;
     }
     return { mandatory: false, complete: true, success: false };
   }
