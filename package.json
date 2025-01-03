@@ -11,9 +11,25 @@
     "build": "npx webpack --config webpack.prod.js",
     "composite": "python -m http.server 8001 -d dist/composite || python3 -m http.server 8001 -d dist/composite",
     "player": "python -m http.server 8002 -d dist/player || python3 -m http.server 8002 -d dist/player",
-    "wrapper": "python -m http.server 8003 -d dist/wrapper || python3 -m http.server 8003 -d dist/wrapper"
+    "wrapper": "python -m http.server 8003 -d dist/wrapper || python3 -m http.server 8003 -d dist/wrapper",
+    "test": "jest"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/test"
+    ],
+    "testMatch": [
+      "**/?(*.)+(spec|test).+(ts|tsx|js)"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    }
   },
   "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.1",
     "typescript": "^5.5.3",
     "webpack": "^5.92.1",
