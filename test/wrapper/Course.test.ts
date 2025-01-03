@@ -4,7 +4,6 @@
 import { Course } from "../../src/wrapper/Course";
 import { TestActivity } from "./TestActivity";
 
-
 test('normal execution', async () => {
   let section = document.createElement("section");
   let activity1 = new TestActivity("activity 1", true);
@@ -43,7 +42,7 @@ test('changed execution order', async () => {
   let result = await course.executeActivity("activity 2");
   expect(result).toMatchObject({ mandatory: true, complete: true, success: true });
 
-  expect(course.nextActivity()).toBe("activity 1");
+  expect(course.nextActivity()).toBe("activity 3");
   result = await course.executeActivity("activity 3");
   expect(result).toMatchObject({ mandatory: true, complete: true, success: true });
 
@@ -134,4 +133,3 @@ test('nested course, normal execution', async () => {
   expect(course2.nextActivity()).toBe("");
   expect(course.nextActivity()).toBe("");
 });
-

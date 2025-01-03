@@ -68,12 +68,7 @@ class Course implements ExecutableCourse {
         if (isActivity(part)) {
           let state = await part.execute(this.#section);
           if (state.complete) {
-            // if activity was complete, remove it from activity list.
-            // the incompleteId will then point to the next incomplete activity (or behind the end).
-            let incompleteId = this.#incompletes.indexOf(part);
-            if (incompleteId >= 0) {
-              this.#incompletes.splice(incompleteId, 1);
-            }
+            this.#markcomplete(part);
           }
           return state;
         }
@@ -95,11 +90,6 @@ class Course implements ExecutableCourse {
 
   nextActivity(): string {
     while (this.#incompletes.length > 0) {
-      if (this.#incompleteId >= this.#incompletes.length) {
-        // if the last incomplete was deleted, the id points behind the last id.
-        // in this case, we re-start with the first incomplete.
-        this.#incompleteId = 0;
-      }
       let part = this.#incompletes[this.#incompleteId];
       if (isActivity(part)) {
         return part.name;
@@ -109,10 +99,7 @@ class Course implements ExecutableCourse {
         if (name === "") {
           // if sub-course is complete call finalize and deleted it from incomplete list
           part?.finalize();
-          let incompleteId = this.#incompletes.indexOf(part);
-          if (incompleteId >= 0) {
-            this.#incompletes.splice(incompleteId, 1);
-          }
+          this.#markcomplete(part);
           // as sub-course was complete we need to find another next Activity (continue loop)
           continue;
         }
@@ -121,6 +108,19 @@ class Course implements ExecutableCourse {
     }
     // no incompletes left, return empty string for informing that course is complete.
     return "";
+  }
+
+  /**
+   * mark part as complete (by removing it from the incomplete list) and set the incompleteId
+   * to the next entry. do nothing if the part does not exist.
+   * @param part part to mark as complete.
+   */
+  #markcomplete(part: CoursePart) {
+    let incompleteId = this.#incompletes.indexOf(part);
+    if (incompleteId >= 0) {
+      this.#incompletes.splice(incompleteId, 1);
+      this.#incompleteId = incompleteId == this.#incompletes.length ? 0 : incompleteId;
+    }
   }
 
 }
