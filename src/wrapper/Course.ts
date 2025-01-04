@@ -59,27 +59,58 @@ class Course implements ExecutableCourse {
   }
 
   async executeActivity(name: string): Promise<ActivityState> {
+   let [resultPromise, successor] = this.executeActivity2(name);
+    successor?.prepare?.();
+    return await resultPromise;
+  }
+
+  /**
+   * executes an activity and retrieves its next incomplete successor in the course.
+   * @param name name of activity
+   * @returns result of activity execution and its incomplete successor.
+   *  - successor is null if there is no incomplete activity left.
+   */
+  private executeActivity2(name: string): [Promise<ActivityState>, Activity | null] {
     let match = name.match(this.#namePattern);
     if (match) {
       let nameHead = match[1];
-      let nameTail = match[2]; // should be empty for activities
+      let nameTail = match[2];
       let part = this.#nameParts[nameHead];
-      if (part) {
-        if (isActivity(part)) {
-          let state = await part.execute(this.#section);
+      let resultPromise: Promise<ActivityState>;
+      let successor: Activity | null = null;
+      if (!part) {
+        resultPromise = new Promise((resolve) => {
+          resolve({mandatory: false, complete: true, success: false});
+        });
+      }
+      else if (isActivity(part)) {
+        resultPromise = part.execute(this.#section);
+        resultPromise.then((state) => {
           if (state.complete) {
             this.#markcomplete(part);
           }
-          return state;
-        }
-        else {
-          // whether sub-course is complete will be visible at next nextActivity call.
-          return await part.executeActivity(nameTail)
-        }
+        }).catch(() => {
+          console.error(`error executing activity ${part.name} in ${this.name}`);
+        })
       }
+      else {
+        [resultPromise, successor] = part.executeActivity2(nameTail);
+      }
+      if (successor === null && this.#incompletes.length > 0) {
+        let successorId: number | undefined;
+        if (part) {
+          let incompleteId = this.#incompletes.indexOf(part);
+          if (incompleteId >= 0) {
+            successorId = incompleteId + 1;
+          }
+        }
+        successor = this.nextActivity2(successorId)[1];
+        // if next activity is part to execute, there are no more incompletes, return null
+        successor = successor !== part ? successor : null;
+      }
+      return [resultPromise, successor];
     }
-    // if name could not be matched
-    return { mandatory: false, complete: true, success: false };
+    throw new Error(`invalid activity name ${name}`);
   }
 
   mandatoryActivities(): number {
@@ -89,25 +120,41 @@ class Course implements ExecutableCourse {
   async finalize(): Promise<void> {}
 
   nextActivity(): string {
+    return this.nextActivity2()[0];
+  }
+
+  /**
+   * looks for the next incomplete activity in the course. the search starts at the given startId.
+   * @param startId: id to start the search. if not given, the search starts at the first incomplete.
+   * @returns a pair [name, activity] of the next incomplete activity.
+   *  - name is empty string and activity is null if the course is complete.
+   */
+  private nextActivity2(startId?: number): [string, Activity] | ["", null] {
+    if (startId === undefined) {
+      startId = this.#incompleteId;
+    }
     while (this.#incompletes.length > 0) {
-      let part = this.#incompletes[this.#incompleteId];
+      if (startId >= this.#incompletes.length) {
+        startId = 0;
+      }
+      let part = this.#incompletes[startId];
       if (isActivity(part)) {
-        return part.name;
+        return [part.name, part];
       }
       else {
-        let name = part.nextActivity();
-        if (name === "") {
+        let [subName, subPart] = part.nextActivity2();
+        if (subName === "") {
           // if sub-course is complete call finalize and deleted it from incomplete list
           part?.finalize();
           this.#markcomplete(part);
           // as sub-course was complete we need to find another next Activity (continue loop)
           continue;
         }
-        return `${part.name}.${name}`;
+        return [`${part.name}.${subName}`, subPart] as [string, Activity];
       }
     }
     // no incompletes left, return empty string for informing that course is complete.
-    return "";
+    return ["", null];
   }
 
   /**
@@ -121,6 +168,44 @@ class Course implements ExecutableCourse {
       this.#incompletes.splice(incompleteId, 1);
       this.#incompleteId = incompleteId == this.#incompletes.length ? 0 : incompleteId;
     }
+  }
+
+  /**
+   * Prepares the activity after the next activity, i.e. that the activity loads resources needed.
+   * This function will be called from executeActivity() for this course. However, if the next part
+   * is a sub-course, the parent course needs to call it for the sub-course.
+   * @returns a promise of name of the activity prepared or null if there was no activity to prepare.
+   */
+  private prepare(): Promise<string> | null {
+    for (let i = 0; i <= this.#incompletes.length; i++) {
+      let id = (this.#incompleteId + i) % this.#incompletes.length;
+      let part = this.#incompletes[id];
+      if (!isActivity(part)) {
+        let result = part.prepare();
+        if (result !== null) {
+          // if the next part is a course and the course could prepare, return the name of the
+          // with the course name as prefix.
+          return new Promise((resolve, reject) => {
+            result.then((name) => resolve(`${part.name}.${name}`)).catch((error) => reject(error));
+          });
+        }
+      }
+      else if (i > 0) {
+        // if the next part is an activity (which cannot be the direct successor),
+        // return a promise which resolves when prepare is done or, if the activity does not
+        // implement prepare, immediately.
+        return new Promise((resolve, reject) => {
+          if (part.prepare) {
+            part.prepare().then(() => resolve(part.name)).catch((error) => reject(error));
+          }
+          else {
+            resolve(part.name);
+          }
+        });
+      }
+    }
+    // there is not incomplete activity left to prepare, return null
+    return null;
   }
 
 }
