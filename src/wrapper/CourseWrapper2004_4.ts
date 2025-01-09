@@ -3,7 +3,6 @@ import { findApi } from "../api/findApi2004_4";
 import type { ScormApi_2004_4 } from "../api/ScormApi2004_4";
 import type { ActivityState } from "./ActivityState";
 import type { CourseStatistics, CourseWrapper } from "./CourseWrapper";
-import { CourseProgress } from "./CourseProgress";
 
 
 class CourseWrapper2004_4 implements CourseWrapper {
@@ -27,15 +26,6 @@ class CourseWrapper2004_4 implements CourseWrapper {
     let api = await this.#initialize();
     api.Terminate("");
     this.#isInitialized = false;
-  }
-
-  async reportProgress(progress: CourseProgress): Promise<void> {
-    let api = await this.#initialize();
-    let progress2 = progress.progress > 1 ? 1 : (progress.progress < 0 ? 0 : progress.progress);
-    api.SetValue("cmi.completion_status", progress2 == 1 ? "completed" : "incomplete");
-    api.SetValue("cmi.progress_measure", progress2.toString());
-    api.SetValue("cmi.success_status", progress.success ? "passed" : "failed");
-    api.Commit("");
   }
 
   statistics(): CourseStatistics {
@@ -87,6 +77,20 @@ class CourseWrapper2004_4 implements CourseWrapper {
 
   async setActivityState(name: string, state: ActivityState): Promise<void> {
     let api = await this.#initialize();
+    this.#activityStates[name] = state;
+    api.SetValue("cmi.suspend_data", JSON.stringify(this.#activityStates));
+  }
+
+  async setCourseState(state: ActivityState, progress: number): Promise<void> {
+    let api = await this.#initialize();
+    if (state.complete) {
+      api.SetValue("cmi.completion_status", "completed");
+      api.SetValue("cmi.success_status", state.success ? "passed" : "failed");
+    }
+    else {
+      api.SetValue("cmi.completion_status", "incomplete");
+      api.SetValue("cmi.success_status", "unknown");
+    }
     if ("score" in state) {
       let raw = state.score > 0 ? state.score : 0;
       let max = state.maxScore >= raw ? state.maxScore : raw;
@@ -95,8 +99,38 @@ class CourseWrapper2004_4 implements CourseWrapper {
       api.SetValue("cmi.score.min", "0");
       api.SetValue("cmi.score.scaled", (max > 0 ? raw / max : 0).toString());
     }
-    this.#activityStates[name] = state;
-    api.SetValue("cmi.suspend_data", JSON.stringify(this.#activityStates));
+    if (progress !== undefined) {
+      if (state.complete || progress > 1) {
+        progress = 1;
+      }
+      else if (progress < 0) {
+        progress = 0;
+      }
+      api.SetValue("cmi.progress_measure", progress.toString());
+    }
+  }
+
+  async getCourseState(): Promise<ActivityState> {
+    let api = await this.#initialize();
+    let complete = api.GetValue("cmi.completion_status") === "completed";
+
+    let result: ActivityState;
+
+    if (complete) {
+      let success = api.GetValue("cmi.success_status") === "passed";
+      result = {mandatory: false, complete, success};
+    }
+    else {
+      result = {mandatory: false, complete};
+    }
+    let score = api.GetValue("cmi.score.raw");
+    let maxScore = api.GetValue("cmi.score.max");
+    if (score !== undefined && maxScore !== undefined) {
+      let points = score ? parseFloat(score) : 0;
+      let maxPoints = maxScore ? parseFloat(maxScore) : 0;
+      result = {...result, score: points, maxScore: maxPoints};
+    }
+    return result;
   }
 
   async #initialize(): Promise<ScormApi_2004_4> {

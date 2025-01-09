@@ -1,7 +1,6 @@
 import { CourseWrapper2004_4 } from "./CourseWrapper2004_4";
 import type { CourseWrapper } from "./CourseWrapper";
 import type { ActivityState } from "./ActivityState";
-import type { CourseProgress } from "./CourseProgress";
 
 
 /**
@@ -88,18 +87,12 @@ class CourseExecutor{
     let setStatePromise = this.wrapper.setActivityState(name, state);
     let mandatory = this.course.mandatoryActivities();
     let statistics = this.wrapper.statistics();
-    let progress: CourseProgress;
-    if (mandatory <= 0) {
-      progress = {progress: 0, success: false};
-    }
-    else if (statistics.completeCount < mandatory) {
-      progress = {progress: statistics.completeCount / mandatory, success: false };
-    }
-    else {
-      progress = {progress: 1, success: statistics.successCount == mandatory}
-    }
+    let progress = mandatory <= 0 ? 0 : (
+      statistics.completeCount < mandatory ? statistics.completeCount / mandatory : 1
+    );
     await setStatePromise;
-    await this.wrapper.reportProgress(progress);
+    let courseState = this.course.courseState();
+    await this.wrapper.setCourseState(courseState, progress);
   }
 }
 

@@ -1,5 +1,4 @@
 import type { ActivityState } from "./ActivityState";
-import type { CourseProgress } from "./CourseProgress";
 
 
 interface Learner {
@@ -37,12 +36,6 @@ interface CourseWrapper {
   stop(): Promise<void>;
 
   /**
-   * report course progress to the Learn Management System.
-   * @param progress progress of course execution.
-   */
-  reportProgress(progress: CourseProgress): Promise<void>;
-
-  /**
    * @return statistics from the activity states reported.
    */
   statistics(): CourseStatistics;
@@ -76,11 +69,25 @@ interface CourseWrapper {
 
   /**
    * get the current state of an activity (e.g. a chapter or a slide). this includes also
-   * information from previouse sessions (if they had been recorded).
+   * information from previous sessions (if they had been recorded).
    * @param name name of activity.
    * @returns the activity state or null if state is not known.
    */
   getActivityState(name: string): Promise<ActivityState | null>;
+
+  /**
+   * sets the current state of the course.
+   * @param state current state of course.
+   * @param progress progress of course execution as a number between 0 (not started) and 1 (completed).
+   */
+  setCourseState(state: ActivityState, progress?: number): Promise<void>;
+
+  /**
+   * gets the current state of the course. this can also be from a previous session.
+   * @returns the current state of the course.
+   */
+  getCourseState(): Promise<ActivityState>;
+
 }
 
 
