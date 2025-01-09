@@ -13,7 +13,7 @@ class TestActivity implements Activity {
     this.name = name;
     this.isMandatory = isMandatory;
     if (!result) {
-      result = {mandatory: isMandatory, complete: true, success: true};
+      result = {mandatory: isMandatory, progress: 1, success: true};
     }
     this.result = result;
   }

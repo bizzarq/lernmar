@@ -36,11 +36,9 @@ class CourseWrapper2004_4 implements CourseWrapper {
       result.activityCount += 1;
       if (state.mandatory) {
         result.mandatoryCount += 1;
-        if (state.complete) {
-          result.completeCount += 1;
-          if (state.success) {
-            result.successCount += 1;
-          }
+        result.completeCount += state.progress;
+        if (state.progress == 1 && state.success) {
+          result.successCount += 1;
         }
       }
     }
@@ -81,9 +79,9 @@ class CourseWrapper2004_4 implements CourseWrapper {
     api.SetValue("cmi.suspend_data", JSON.stringify(this.#activityStates));
   }
 
-  async setCourseState(state: ActivityState, progress: number): Promise<void> {
+  async setCourseState(state: ActivityState): Promise<void> {
     let api = await this.#initialize();
-    if (state.complete) {
+    if (state.progress >= 1) {
       api.SetValue("cmi.completion_status", "completed");
       api.SetValue("cmi.success_status", state.success ? "passed" : "failed");
     }
@@ -99,29 +97,22 @@ class CourseWrapper2004_4 implements CourseWrapper {
       api.SetValue("cmi.score.min", "0");
       api.SetValue("cmi.score.scaled", (max > 0 ? raw / max : 0).toString());
     }
-    if (progress !== undefined) {
-      if (state.complete || progress > 1) {
-        progress = 1;
-      }
-      else if (progress < 0) {
-        progress = 0;
-      }
-      api.SetValue("cmi.progress_measure", progress.toString());
-    }
+    api.SetValue("cmi.progress_measure", state.progress.toString());
   }
 
   async getCourseState(): Promise<ActivityState> {
     let api = await this.#initialize();
     let complete = api.GetValue("cmi.completion_status") === "completed";
+    let progress = complete ? 1 : 0;
 
     let result: ActivityState;
 
     if (complete) {
       let success = api.GetValue("cmi.success_status") === "passed";
-      result = {mandatory: false, complete, success};
+      result = {mandatory: false, progress, success};
     }
     else {
-      result = {mandatory: false, complete};
+      result = {mandatory: false, progress};
     }
     let score = api.GetValue("cmi.score.raw");
     let maxScore = api.GetValue("cmi.score.max");

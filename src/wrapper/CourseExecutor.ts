@@ -70,7 +70,7 @@ class CourseExecutor{
 
     while (name) {
       let state = await this.wrapper.getActivityState(name);
-      if (state == null || !state.complete) {
+      if (state == null || state.progress < 1) {
         let statePromise = this.course.executeActivity(name);
         await this.wrapper.setCurrentActivity(name);
         await this.#processState(name, statePromise);

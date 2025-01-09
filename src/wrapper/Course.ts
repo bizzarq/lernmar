@@ -82,7 +82,7 @@ class Course implements ExecutableCourse {
       let successor: Activity | null = null;
       if (!part) {
         resultPromise = new Promise((resolve) => {
-          resolve({mandatory: false, complete: true, success: false});
+          resolve({mandatory: false, progress: 1, success: false});
         });
       }
       else if (isActivity(part)) {
@@ -90,7 +90,7 @@ class Course implements ExecutableCourse {
         resultPromise.then((state) => {
           // store result of activity
           this.#nameResults[nameHead] = state;
-          if (state.complete) {
+          if (state.progress >= 1) {
             this.#markcomplete(part);
           }
         }).catch(() => {
@@ -123,7 +123,7 @@ class Course implements ExecutableCourse {
 
   courseState(): ActivityState {
     let mandatory = this.#mandatoryActivities > 0;
-    let complete = true;
+    let progressSum = 0;
     let success = true;
     let hasScore = false;
     let score = 0;
@@ -135,26 +135,25 @@ class Course implements ExecutableCourse {
         subResult = this.#nameResults[name];
         if (subResult === undefined) {
           // activity was not executed yet
-          if (part.isMandatory) {
-            complete = false;
-          }
           continue;
+        }
+        if (part.isMandatory) {
+          progressSum += subResult.progress;
         }
       }
       else {
         // sub-courses have their own sub-results
         subResult = part.courseState();
+        // need to consider mandatory activities of sub-courses for adjusted progress
+        progressSum += Math.round(subResult.progress * part.mandatoryActivities());
       }
-      // consider sub-complete and sub-success
-      if (subResult.mandatory) {
-        if (subResult.complete) {
-          success &&= subResult.success;
-        }
-        else {
-          complete = false;
+      // consider sub-success
+      if (!isActivity(part) || part.isMandatory) {
+        if (subResult.progress >= 1) {
+          success &&= Boolean(subResult.success);
         }
       }
-      // add sub-scores
+    // add sub-scores
       if ("score" in subResult) {
         hasScore = true;
         score += subResult.score;
@@ -162,15 +161,16 @@ class Course implements ExecutableCourse {
       }
     }
     let result: ActivityState;
-    if (complete) {
+    console.log(`${this.name}, ${this.#mandatoryActivities}, ${progressSum}`);
+    if (this.#mandatoryActivities == 0 || progressSum >= this.#mandatoryActivities) {
       // course is complete.
       // make course successful only if score is at least 80% of maxScore
       success &&= !hasScore || (score >= maxScore * 0.8);
-      result = {mandatory: mandatory, complete: true, success};
+      result = {mandatory: mandatory, progress: 1, success};
     }
     else {
       // course is incomplete. success will not be set.
-      result = {mandatory: mandatory, complete: false};
+      result = {mandatory: mandatory, progress: progressSum / this.#mandatoryActivities};
     }
     if (hasScore) {
       // add score in both cases, complete and incomplete
