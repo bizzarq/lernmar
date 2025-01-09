@@ -25,6 +25,15 @@ interface ExecutableCourse {
   mandatoryActivities(): number;
 
   /**
+   * @returns the state of the course. the course state must represent the state of its activities:
+   *   - a course can only be non-mandatory if all of its activities are non-mandatory.
+   *   - a course can only be complete if all its mandatory activities are complete.
+   *   - a course can only be successful if all its mandatory activities are successful.
+   *   - score and maxScore of the course state are the sum of the scores and maxScores its activities.
+   */
+  courseState(): ActivityState;
+
+  /**
    * finalize the course before it is closed.
    */
   finalize?(): Promise<void>;

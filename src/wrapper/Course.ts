@@ -19,10 +19,11 @@ class Course implements ExecutableCourse {
   readonly name: string;
   #section;
   #nameParts: Record<string, CoursePart>;
+  #nameResults: Record<string, ActivityState>;
   #incompletes: Array<CoursePart>;
   #incompleteId: number;
   #mandatoryActivities;
-  #namePattern = /^([^\.]+)\.?(.*)$/
+  #namePattern = /^([^\.]+)\.?(.*)$/;
 
   /**
    * constructor.
@@ -37,6 +38,7 @@ class Course implements ExecutableCourse {
     this.name = name === undefined ? "Main Course": name;
     this.#section = section;
     this.#nameParts = {};
+    this.#nameResults = {};
     this.#incompletes = [];
     this.#incompleteId = 0;
     this.#mandatoryActivities = 0;
@@ -86,6 +88,8 @@ class Course implements ExecutableCourse {
       else if (isActivity(part)) {
         resultPromise = part.execute(this.#section);
         resultPromise.then((state) => {
+          // store result of activity
+          this.#nameResults[nameHead] = state;
           if (state.complete) {
             this.#markcomplete(part);
           }
@@ -115,6 +119,64 @@ class Course implements ExecutableCourse {
 
   mandatoryActivities(): number {
     return this.#mandatoryActivities;
+  }
+
+  courseState(): ActivityState {
+    let mandatory = this.#mandatoryActivities > 0;
+    let complete = true;
+    let success = true;
+    let hasScore = false;
+    let score = 0;
+    let maxScore = 0;
+    for (let [name, part] of Object.entries(this.#nameParts)) {
+      let subResult;
+      if (isActivity(part)) {
+        // results of executed activities are stored in nameResults
+        subResult = this.#nameResults[name];
+        if (subResult === undefined) {
+          // activity was not executed yet
+          if (part.isMandatory) {
+            complete = false;
+          }
+          continue;
+        }
+      }
+      else {
+        // sub-courses have their own sub-results
+        subResult = part.courseState();
+      }
+      // consider sub-complete and sub-success
+      if (subResult.mandatory) {
+        if (subResult.complete) {
+          success &&= subResult.success;
+        }
+        else {
+          complete = false;
+        }
+      }
+      // add sub-scores
+      if ("score" in subResult) {
+        hasScore = true;
+        score += subResult.score;
+        maxScore += subResult.maxScore;
+      }
+    }
+    let result: ActivityState;
+    if (complete) {
+      // course is complete.
+      // make course successful only if score is at least 80% of maxScore
+      success &&= !hasScore || (score >= maxScore * 0.8);
+      result = {mandatory: mandatory, complete: true, success};
+    }
+    else {
+      // course is incomplete. success will not be set.
+      result = {mandatory: mandatory, complete: false};
+    }
+    if (hasScore) {
+      // add score in both cases, complete and incomplete
+      result = {...result, score, maxScore};
+    }
+    return result;
   }
 
   async finalize(): Promise<void> {}
