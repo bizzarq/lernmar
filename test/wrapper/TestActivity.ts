@@ -9,10 +9,13 @@ class TestActivity implements Activity {
   isExecuted: boolean = false;
   isPrepared: boolean = false;
   
-  constructor(name: string, isMandatory: boolean) {
+  constructor(name: string, isMandatory: boolean, result?: ActivityState) {
     this.name = name;
     this.isMandatory = isMandatory;
-    this.result = { mandatory: isMandatory, complete: true, success: true };
+    if (!result) {
+      result = {mandatory: isMandatory, complete: true, success: true};
+    }
+    this.result = result;
   }
 
   async execute(section: HTMLElement): Promise<ActivityState> {

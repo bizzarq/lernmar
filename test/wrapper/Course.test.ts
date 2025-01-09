@@ -226,3 +226,69 @@ test("checking prepare calls in a nested course", async () => {
     expect(activity211.isPrepared).toBe(true);
     expect(activity22.isPrepared).toBe(true);
 });
+
+test("checking course result in a nested course", async () => {
+  let section = document.createElement("section");
+  // course 1: narrow success in incomplete non-mandatory activity
+  let activity11 = new TestActivity("activity 11", true, {
+    mandatory: false, complete: false, score: 75, maxScore: 100
+  });
+  let activity12 = new TestActivity("activity 12", true, {
+    mandatory: true, complete: true, success: true, score: 85, maxScore: 100
+  });
+  let course1 = new Course(section, [activity11, activity12], "course 1");
+  // course 2: no success because of bad score in non-mandatory activity
+  let activity21 = new TestActivity("activity 21", true, {
+    mandatory: false, complete: true, success: true, score: 74, maxScore: 100
+  });
+  let activity22 = new TestActivity("activity 22", true, {
+    mandatory: true, complete: true, success: true, score: 85, maxScore: 100
+  });
+  let course2 = new Course(section, [activity21, activity22], "course 2");
+  // course 3. incomplete despite good score
+  let activity31 = new TestActivity("activity 31", true, {
+    mandatory: false, complete: true, success: true, score: 100, maxScore: 100
+  });
+  let activity32 = new TestActivity("activity 32", true, {
+    mandatory: true, complete: false, score: 100, maxScore: 100
+  });
+  let course3 = new Course(section, [activity31, activity32], "course 3");
+
+  let course = new Course(section, [course1, course2, course3]);
+
+  expect(course1.courseState()).toMatchObject({mandatory: true, complete: false});
+  expect(course2.courseState()).toMatchObject({mandatory: true, complete: false});
+  expect(course3.courseState()).toMatchObject({mandatory: true, complete: false});
+  expect(course.courseState()).toMatchObject({mandatory: true, complete: false});
+      
+  await course.executeActivity("course 1.activity 11");
+  await course.executeActivity("course 1.activity 12");
+
+  expect(course1.courseState()).toMatchObject({
+    mandatory: true, complete: true, success: true, score: 160, maxScore: 200
+  });
+  expect(course.courseState()).toMatchObject({
+    mandatory: true, complete: false, score: 160, maxScore: 200
+  });
+
+  await course.executeActivity("course 2.activity 21");
+  await course.executeActivity("course 2.activity 22");
+
+  expect(course2.courseState()).toMatchObject({
+    mandatory: true, complete: true, success: false, score: 159, maxScore: 200
+  });
+  expect(course.courseState()).toMatchObject({
+    mandatory: true, complete: false, score: 319, maxScore: 400
+  });
+
+  await course.executeActivity("course 3.activity 31");
+  await course.executeActivity("course 3.activity 32");
+
+  expect(course3.courseState()).toMatchObject({
+    mandatory: true, complete: false, score: 200, maxScore: 200
+  });
+  expect(course.courseState()).toMatchObject({
+    mandatory: true, complete: false, score: 519, maxScore: 600
+  });
+
+});
