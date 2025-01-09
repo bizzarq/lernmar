@@ -18,8 +18,8 @@ function isActivity(part: CoursePart): part is Activity {
 class Course implements ExecutableCourse {
   readonly name: string;
   #section;
-  #nameParts: Record<string, CoursePart>;
-  #nameResults: Record<string, ActivityState>;
+  #parts: Record<string, CoursePart>;
+  #activityStates: Record<string, ActivityState>;
   #incompletes: Array<CoursePart>;
   #incompleteId: number;
   #mandatoryActivities;
@@ -37,17 +37,17 @@ class Course implements ExecutableCourse {
   constructor(section: HTMLElement, parts: Array<CoursePart>, name?: string) {
     this.name = name === undefined ? "Main Course": name;
     this.#section = section;
-    this.#nameParts = {};
-    this.#nameResults = {};
+    this.#parts = {};
+    this.#activityStates = {};
     this.#incompletes = [];
     this.#incompleteId = 0;
     this.#mandatoryActivities = 0;
     for (let part of parts) {
-      if (part.name in this.#nameParts) {
+      if (part.name in this.#parts) {
         console.error(`ignore duplicate activity ${part.name}`);
         continue;
       }
-      this.#nameParts[part.name] = part;
+      this.#parts[part.name] = part;
       this.#incompletes.push(part);
       if (isActivity(part)) {
         if (part.isMandatory) {
@@ -77,7 +77,7 @@ class Course implements ExecutableCourse {
     if (match) {
       let nameHead = match[1];
       let nameTail = match[2];
-      let part = this.#nameParts[nameHead];
+      let part = this.#parts[nameHead];
       let resultPromise: Promise<ActivityState>;
       let successor: Activity | null = null;
       if (!part) {
@@ -89,7 +89,7 @@ class Course implements ExecutableCourse {
         resultPromise = part.execute(this.#section);
         resultPromise.then((state) => {
           // store result of activity
-          this.#nameResults[nameHead] = state;
+          this.#activityStates[nameHead] = state;
           if (state.progress >= 1) {
             this.#markcomplete(part);
           }
@@ -117,6 +117,46 @@ class Course implements ExecutableCourse {
     throw new Error(`invalid activity name ${name}`);
   }
 
+  setActivityStates(states: Record<string, ActivityState>): void {
+    let subCourseStates: Record<string, [Course, Record<string, ActivityState>]> = {};
+    for (let [name, state] of Object.entries(states)) {
+      let match = name.match(this.#namePattern);
+      if (match) {
+        let nameHead = match[1];
+        let nameTail = match[2];
+        let part = this.#parts[nameHead];
+        if (!part) {
+          // ignore state for unknown activity
+          continue;
+        }
+        if (isActivity(part)) {
+          if (nameHead in this.#activityStates) {
+            // ignore state for activity which was already executed
+            continue;
+          }
+          this.#activityStates[nameHead] = state;
+          if (state.progress >= 1) {
+            this.#markcomplete(part);
+          }
+        }
+        else {
+          // collect sub-course activities in own objects
+          if (!(nameHead in subCourseStates)) {
+            subCourseStates[nameHead] = [part, {}];
+          }
+          subCourseStates[nameHead][1][nameTail] = state;
+        }
+      }
+    }
+    for (let [ course, states ] of Object.values(subCourseStates)) {
+      course.setActivityStates(states);
+    }
+  }
+
+  /**
+   * @return number of mandatory activities in this course. this number is needed to calculate
+   * the progress of the course.
+   */
   mandatoryActivities(): number {
     return this.#mandatoryActivities;
   }
@@ -128,11 +168,11 @@ class Course implements ExecutableCourse {
     let hasScore = false;
     let score = 0;
     let maxScore = 0;
-    for (let [name, part] of Object.entries(this.#nameParts)) {
+    for (let [name, part] of Object.entries(this.#parts)) {
       let subResult;
       if (isActivity(part)) {
         // results of executed activities are stored in nameResults
-        subResult = this.#nameResults[name];
+        subResult = this.#activityStates[name];
         if (subResult === undefined) {
           // activity was not executed yet
           continue;

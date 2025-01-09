@@ -18,10 +18,13 @@ interface ExecutableCourse {
   executeActivity(name: string): Promise<ActivityState>;
 
   /**
-   * @return number of mandatory activities in this course. this number is needed to calculate
-   * the progress of the course.
+   * set the state of a sub-set of the course activities.
+   * if there is a previous session which was interrupted, the executor might call this function in
+   * the beginning (during or shortly after the intro) for re-setting the course to the state before
+   * the interruption. the course can choose to ignore this call (e.g. after user confirmation).
+   * @param states map of activity names to their states.
    */
-  mandatoryActivities(): number;
+  setActivityStates(states: Record<string, ActivityState>): void;
 
   /**
    * @returns the state of the course. the course state must represent the state of its activities:
@@ -61,12 +64,15 @@ class CourseExecutor{
   }
 
   async execute() {
-    let name = "intro";
-    let introPromise = this.course.executeActivity(name);
-    await this.wrapper.start();
-    await this.#processState(name, introPromise);
+    let introName = "intro";
+    let introPromise = this.course.executeActivity(introName);
 
-    name = (await this.wrapper.getCurrentActivity()) || this.course.nextActivity();
+    await this.wrapper.start();
+    let activityStates = await this.wrapper.getActivityStates();
+    this.course.setActivityStates(activityStates);
+    let name = (await this.wrapper.getCurrentActivity()) || this.course.nextActivity();
+
+    await this.#processState(introName, introPromise);
 
     while (name) {
       let state = await this.wrapper.getActivityState(name);
@@ -85,14 +91,9 @@ class CourseExecutor{
   async #processState(name: string, statePromise: Promise<ActivityState>) {
     let state = await statePromise;
     let setStatePromise = this.wrapper.setActivityState(name, state);
-    let mandatory = this.course.mandatoryActivities();
-    let statistics = this.wrapper.statistics();
-    let progress = mandatory <= 0 ? 0 : (
-      statistics.completeCount < mandatory ? statistics.completeCount / mandatory : 1
-    );
-    await setStatePromise;
     let courseState = this.course.courseState();
-    await this.wrapper.setCourseState(courseState, progress);
+    await setStatePromise;
+    await this.wrapper.setCourseState(courseState);
   }
 }
 

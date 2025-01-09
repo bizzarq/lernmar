@@ -36,11 +36,6 @@ interface CourseWrapper {
   stop(): Promise<void>;
 
   /**
-   * @return statistics from the activity states reported.
-   */
-  statistics(): CourseStatistics;
-
-  /**
    * get the learner data (id and name).
    * @return learner data.
    */
@@ -68,8 +63,15 @@ interface CourseWrapper {
   setActivityState(name: string, state: ActivityState): Promise<void>;
 
   /**
-   * get the current state of an activity (e.g. a chapter or a slide). this includes also
-   * information from previous sessions (if they had been recorded).
+   * get the state of all activities (e.g. chapters or slides) whose activity has been reported.
+   * this includes also information from previous sessions (if they had been recorded).
+   * @returns and object mapping activity names to their states.
+   */
+  getActivityStates(): Promise<Record<string, ActivityState>>
+
+  /**
+   * get the current state of an activity (e.g. a chapter or a slide).
+   * this includes also information from previous sessions (if they had been recorded).
    * @param name name of activity.
    * @returns the activity state or null if state is not known.
    */
@@ -78,9 +80,8 @@ interface CourseWrapper {
   /**
    * sets the current state of the course.
    * @param state current state of course.
-   * @param progress progress of course execution as a number between 0 (not started) and 1 (completed).
    */
-  setCourseState(state: ActivityState, progress?: number): Promise<void>;
+  setCourseState(state: ActivityState): Promise<void>;
 
   /**
    * gets the current state of the course. this can also be from a previous session.

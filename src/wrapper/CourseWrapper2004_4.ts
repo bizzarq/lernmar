@@ -28,23 +28,6 @@ class CourseWrapper2004_4 implements CourseWrapper {
     this.#isInitialized = false;
   }
 
-  statistics(): CourseStatistics {
-    let result: CourseStatistics = {
-      activityCount: 0, mandatoryCount: 0, completeCount: 0, successCount: 0
-    };
-    for (let state of Object.values(this.#activityStates)) {
-      result.activityCount += 1;
-      if (state.mandatory) {
-        result.mandatoryCount += 1;
-        result.completeCount += state.progress;
-        if (state.progress == 1 && state.success) {
-          result.successCount += 1;
-        }
-      }
-    }
-    return result;
-  }
-
   async getLearner() {
     let api = await this.#initialize();
     return {
@@ -62,6 +45,11 @@ class CourseWrapper2004_4 implements CourseWrapper {
   async getCurrentActivity(): Promise<string | null> {
     await this.#initialize();
     return this.#location;
+  }
+
+  async getActivityStates(): Promise<Record<string, ActivityState>> {
+    await this.#initialize();
+    return {...this.#activityStates};
   }
 
   async getActivityState(name: string): Promise<ActivityState | null> {
