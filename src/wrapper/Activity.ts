@@ -13,6 +13,9 @@ interface Activity {
 
   /**
    * whether completion of this activity is mandatory for completion of the course.
+   * a non-mandatory activity can contribute to the overall score and by this prevent course
+   * completion, e.g. one of several quiz question which can be skipped if the others are answered
+   * correctly.
    */
   readonly isMandatory: boolean;
 
