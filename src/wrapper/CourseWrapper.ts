@@ -7,20 +7,6 @@ interface Learner {
 }
 
 /**
- * statistics of course progress.
- * @property {number} activityCount number of started activities.
- * @property {number} mandatoryCount number of started mandatory activities.
- * @property {number} completeCount number of started mandatory activities completed.
- * @property {number} successCount number of started mandatory activities completed successfully.
- */
-interface CourseStatistics {
-  activityCount: number;
-  mandatoryCount: number;
-  completeCount: number;
-  successCount: number;
-}
-
-/**
  * A wrapper around a digital course which connects to a learn management system like SCORM.
  */
 interface CourseWrapper {
@@ -92,4 +78,4 @@ interface CourseWrapper {
 }
 
 
-export type { CourseWrapper, CourseStatistics, Learner };
+export type { CourseWrapper, Learner };

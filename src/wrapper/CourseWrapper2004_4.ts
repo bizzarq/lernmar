@@ -2,7 +2,7 @@ import { isActivityState } from "./ActivityState";
 import { findApi } from "../api/findApi2004_4";
 import type { ScormApi_2004_4 } from "../api/ScormApi2004_4";
 import type { ActivityState } from "./ActivityState";
-import type { CourseStatistics, CourseWrapper } from "./CourseWrapper";
+import type { CourseWrapper } from "./CourseWrapper";
 
 
 class CourseWrapper2004_4 implements CourseWrapper {
