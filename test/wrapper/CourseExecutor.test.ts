@@ -9,6 +9,8 @@ import { TestActivity } from "./TestActivity";
 
 
 test("normal execution of nested course", async () => {
+  // supress console.log output from the course player
+  global.console.log = () => {};
   let player = new CoursePlayer2004_4();
   window.API_1484_11 = player;
 
