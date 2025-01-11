@@ -97,10 +97,10 @@ class CourseWrapper2004_4 implements CourseWrapper {
 
     if (complete) {
       let success = api.GetValue("cmi.success_status") === "passed";
-      result = {mandatory: false, progress, success};
+      result = {progress, success};
     }
     else {
-      result = {mandatory: false, progress};
+      result = {progress};
     }
     let score = api.GetValue("cmi.score.raw");
     let maxScore = api.GetValue("cmi.score.max");

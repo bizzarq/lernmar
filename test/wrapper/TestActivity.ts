@@ -8,17 +8,23 @@ class TestActivity implements Activity {
   result: ActivityState;
   isExecuted: boolean = false;
   isPrepared: boolean = false;
-  
-  constructor(name: string, isMandatory: boolean, result?: ActivityState) {
+  #unblock: Promise<void> | null = null;
+
+  constructor(name: string, isMandatory: boolean) {
     this.name = name;
     this.isMandatory = isMandatory;
-    if (!result) {
-      result = {mandatory: isMandatory, progress: 1, success: true};
-    }
-    this.result = result;
+    this.result = {progress: 1, success: true};
+  }
+
+  async blockExecution(unblock: Promise<void>): Promise<void> {
+    this.#unblock = unblock;
   }
 
   async execute(section: HTMLElement): Promise<ActivityState> {
+    if (this.#unblock) {
+      await this.#unblock;
+      this.#unblock = null;
+    }
     this.isExecuted = true;
     return this.result;
   }

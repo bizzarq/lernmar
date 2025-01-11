@@ -1,6 +1,5 @@
 /**
  * The state of a course activity.
- * @property {boolean} mandatory whether the activity is mandatory.
  * @property {number} progress progress of activity as a value between 0 (not started) and 1 (completed).
  * @property {boolean} success whether activity was completed with success. all mandatory
  *   activities must be completed successfully for the course to be successful. the course
@@ -9,8 +8,8 @@
  * @property {number} maxScore: maximum score possible for this activity. must be >= score.
  */
 type ActivityState =
-  { mandatory: boolean, progress: number, success?: boolean } |
-  { mandatory: boolean, progress: number, success?: boolean, score: number, maxScore: number };
+  { progress: number, success?: boolean } |
+  { progress: number, success?: boolean, score: number, maxScore: number };
 
 function isActivityState(state: any): state is ActivityState {
   if (typeof state.progress !== "number") {

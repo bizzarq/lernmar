@@ -82,7 +82,7 @@ class Course implements ExecutableCourse {
       let successor: Activity | null = null;
       if (!part) {
         resultPromise = new Promise((resolve) => {
-          resolve({mandatory: false, progress: 1, success: false});
+          resolve({progress: 1, success: false});
         });
       }
       else if (isActivity(part)) {
@@ -201,16 +201,16 @@ class Course implements ExecutableCourse {
       }
     }
     let result: ActivityState;
-    console.log(`${this.name}, ${this.#mandatoryActivities}, ${progressSum}`);
+    // console.log(`${this.name}, ${this.#mandatoryActivities}, ${progressSum}`);
     if (this.#mandatoryActivities == 0 || progressSum >= this.#mandatoryActivities) {
       // course is complete.
       // make course successful only if score is at least 80% of maxScore
       success &&= !hasScore || (score >= maxScore * 0.8);
-      result = {mandatory: mandatory, progress: 1, success};
+      result = {progress: 1, success};
     }
     else {
       // course is incomplete. success will not be set.
-      result = {mandatory: mandatory, progress: progressSum / this.#mandatoryActivities};
+      result = {progress: progressSum / this.#mandatoryActivities};
     }
     if (hasScore) {
       // add score in both cases, complete and incomplete
