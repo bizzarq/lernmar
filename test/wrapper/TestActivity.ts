@@ -8,7 +8,6 @@ class TestActivity implements Activity {
   result: ActivityState;
   isExecuted: boolean = false;
   isPrepared: boolean = false;
-  #unblock: Promise<void> | null = null;
 
   constructor(name: string, isMandatory: boolean) {
     this.name = name;
@@ -16,16 +15,13 @@ class TestActivity implements Activity {
     this.result = {progress: 1, success: true};
   }
 
-  async blockExecution(unblock: Promise<void>): Promise<void> {
-    this.#unblock = unblock;
-  }
+  onExecuteStart: (() => Promise<void>) | undefined; 
+  onExecuteEnd: (() => Promise<void>) | undefined; 
 
   async execute(section: HTMLElement): Promise<ActivityState> {
-    if (this.#unblock) {
-      await this.#unblock;
-      this.#unblock = null;
-    }
+    await this.onExecuteStart?.();
     this.isExecuted = true;
+    await this.onExecuteEnd?.();
     return this.result;
   }
 
