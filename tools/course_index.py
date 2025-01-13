@@ -98,21 +98,23 @@ class CourseIndex:
         """
         self._courses.clear()
 
-    def from_course_dir(self, course_dir: Optional[str]=None) -> None:
+    def from_course_dir(self, course_dir: Optional[str]=None) -> int:
         """
         generates an index for the course directory. existing entries will be deleted.
         scans the courses in a directory and generates an index.
         @param course_dir directory with courses. if omitted, course directory of index.
-        @return course index.
+        @return number of courses added.
         """
         if course_dir is None:
             course_dir = self._course_dir
         self.clear()
+        count = 0
         for name in os.listdir(course_dir):
             path = os.path.join(course_dir, name)
             if os.path.isdir(path):
-                self.from_course(path)
-        return index
+                if self.from_course(path):
+                    count += 1
+        return count
 
     def from_course(self, course_path: str) -> bool:
         """
@@ -165,5 +167,6 @@ if __name__ == '__main__':
         course_dir = os.path.join(root_dir, 'dist', 'player', 'courses')
 
     index = CourseIndex(course_dir)
-    index.from_course_dir()
+    count = index.from_course_dir()
     index.write()
+    print(f'indexed {count} courses in {course_dir}')
