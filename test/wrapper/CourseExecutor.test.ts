@@ -1,18 +1,15 @@
 /**
  * @jest-environment jsdom
  */
-import { CoursePlayer2004_4 } from "../../src/player/CoursePlayer2004_4";
 import { Course } from "../../src/wrapper/Course";
 import { CourseExecutor } from "../../src/wrapper/CourseExecutor";
-import { CourseWrapper2004_4 } from "../../src/wrapper/CourseWrapper2004_4";
+import { CourseWrapperStandalone } from "../../src/wrapper/CourseWrapperStandalone";
 import { TestActivity } from "./TestActivity";
 
 
 test("normal execution of nested course", async () => {
   // supress console.log output from the course player
   global.console.log = () => {};
-  let player = new CoursePlayer2004_4();
-  window.API_1484_11 = player;
 
   let section = document.createElement("section");
   let activity1 = new TestActivity("activity 1", true);
@@ -21,7 +18,7 @@ test("normal execution of nested course", async () => {
   let activity22 = new TestActivity("activity 22", true);
   let course2 = new Course(section, [course21, activity22], "course 2");
   let course = new Course(section, [activity1, course2]);
-  let wrapper = new CourseWrapper2004_4();
+  let wrapper = new CourseWrapperStandalone();
   let executor = new CourseExecutor(course, wrapper);
 
   activity1.onExecuteStart = async () => {
