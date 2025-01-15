@@ -57,3 +57,26 @@ test("normal execution of nested course", async () => {
   expect(activity22.isExecuted).toBe(true);
   expect(await wrapper.getCourseState()).toMatchObject({progress: 1, success: true});
 });
+
+test("course always proposes same activity", async () => {
+  let maxExecutions = 3;
+  let activity = new TestActivity("activity", true);
+  let course = new Course(document.createElement("section"), [activity]);
+  // modify the course to always propose the same activity
+  let nextActivityCount = 0;
+  course.nextActivity = () => {
+    nextActivityCount++;
+    return "activity";
+  }
+  let wrapper = new CourseWrapperStandalone();
+  let executor = new CourseExecutor(course, wrapper);
+
+  let executions = 0;
+  activity.onExecuteStart = async () => {
+    executions++;
+  };
+
+  await executor.execute();
+  expect(nextActivityCount).toBe(maxExecutions + 1);
+  expect(executions).toBe(maxExecutions);
+});

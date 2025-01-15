@@ -57,10 +57,12 @@ interface ExecutableCourse {
 class CourseExecutor{
   readonly wrapper: CourseWrapper;
   readonly course: ExecutableCourse;
+  #maxExecutions: number; // maximum number of executions of the same activity
 
   constructor(course: ExecutableCourse, wrapper?: CourseWrapper) {
     this.course = course;
     this.wrapper = wrapper ? wrapper : new CourseWrapper2004_4();
+    this.#maxExecutions = 3;
   }
 
   async execute() {
@@ -73,15 +75,25 @@ class CourseExecutor{
     let name = (await this.wrapper.getCurrentActivity()) || this.course.nextActivity();
 
     await this.#processState(introName, introPromise);
+    let executions: Record<string, number> = {introName: 1};
 
     while (name) {
-      let state = await this.wrapper.getActivityState(name);
-      if (state == null || state.progress < 1) {
-        let statePromise = this.course.executeActivity(name);
-        await this.wrapper.setCurrentActivity(name);
-        await this.#processState(name, statePromise);
-        name = this.course.nextActivity();
+      // avoid endless loop if the course repeatedly returns the same activities
+      // by setting a limit of executions per activity
+      if (name in executions) {
+        if (executions[name] >= this.#maxExecutions) {
+          console.log(`max executions ${this.#maxExecutions} reached for activity ${name}`);
+          break;
+        }
+        executions[name]++;
       }
+      else {
+        executions[name] = 1;
+      }
+      let statePromise = this.course.executeActivity(name);
+      await this.wrapper.setCurrentActivity(name);
+      await this.#processState(name, statePromise);
+      name = this.course.nextActivity();
     }
 
     await this.course.finalize?.();
