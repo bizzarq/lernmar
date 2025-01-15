@@ -158,13 +158,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='creates an index.json file for a folder with scorm courses.')
     parser.add_argument('course_dir', nargs='?',
-        help='path of course directory. if omitted use default ../dist/player/courses')
+        help='path of course directory. if omitted use default ../play/player/courses')
     args = parser.parse_args()
 
     course_dir = args.course_dir
     if course_dir is None:
         root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        course_dir = os.path.join(root_dir, 'dist', 'player', 'courses')
+        course_dir = os.path.join(root_dir, 'run', 'player', 'courses')
 
     index = CourseIndex(course_dir)
     count = index.from_course_dir()

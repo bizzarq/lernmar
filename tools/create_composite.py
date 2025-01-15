@@ -68,7 +68,7 @@ def _copy_lernmar_files(path: str):
     @param path path of course directory.
     """
     root_dir = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
-    src_dir = os.path.join(root_dir, 'dist', 'composite')
+    src_dir = os.path.join(root_dir, 'run', 'composite')
     items = ['index.html', 'lernmar.svg', 'main.css', 'js']
     for item in items:
         src_path = os.path.join(src_dir, item)
