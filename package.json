@@ -4,14 +4,13 @@
   "description": "Typescript library and Python tools for creating and playing SCORM courses",
   "author": "Bizzarq Software",
   "license": "MIT",
-  "main": "src/player/main.ts",
-  "typings": "src/player/main.ts",
   "scripts": {
-    "dev-build": "npx webpack --config webpack.dev.js",
-    "build": "npx webpack --config webpack.prod.js",
-    "composite": "python -m http.server 8001 -d dist/composite || python3 -m http.server 8001 -d dist/composite",
-    "player": "python -m http.server 8002 -d dist/player || python3 -m http.server 8002 -d dist/player",
-    "wrapper": "python -m http.server 8003 -d dist/wrapper || python3 -m http.server 8003 -d dist/wrapper",
+    "dev-build-run": "npx webpack --config webpack.dev.js",
+    "build-run": "npx webpack --config webpack.prod.js",
+    "build": "rm -r dist/*; npx tsc",
+    "composite": "python -m http.server 8001 -d run/composite || python3 -m http.server 8001 -d run/composite",
+    "player": "python -m http.server 8002 -d run/player || python3 -m http.server 8002 -d run/player",
+    "wrapper": "python -m http.server 8003 -d run/wrapper || python3 -m http.server 8003 -d run/wrapper",
     "test": "jest"
   },
   "jest": {

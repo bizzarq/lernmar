@@ -1,10 +1,7 @@
-# also ignored by .npmignore
+# ignored by .gitignore and .npmignore
 node_modules/
 run/composite/js/
 run/player/js/
 run/player/courses/
 run/wrapper/js/
 tools/__pycache__/
-
-# only ignored here
-dist/
