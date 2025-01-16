@@ -166,7 +166,7 @@ test('nested course, normal execution', async () => {
   expect(course.nextActivity()).toBe("");
 });
 
-test("checking prepare calls within normal course execution", async () => {
+test("prepare calls within normal course execution", async () => {
   let section = document.createElement("section");
   let activity1 = new TestActivity("activity 1", true);
   let activity2 = new TestActivity("activity 2", true);
@@ -193,7 +193,7 @@ test("checking prepare calls within normal course execution", async () => {
   expect(activity3.isPrepared).toBe(true);
 });
 
-test("checking prepare calls in a nested course", async () => {
+test("prepare calls in a nested course", async () => {
     let section = document.createElement("section");
     let activity1 = new TestActivity("activity 1", true);
     let activity211 = new TestActivity("activity 211", true);
@@ -227,7 +227,7 @@ test("checking prepare calls in a nested course", async () => {
     expect(activity22.isPrepared).toBe(true);
 });
 
-test("checking course result in a nested course", async () => {
+test("course result in a nested course", async () => {
   let section = document.createElement("section");
   // course 1: narrow success in incomplete non-mandatory activity
   let activity11 = new TestActivity("activity 11", false);
@@ -272,5 +272,14 @@ test("checking course result in a nested course", async () => {
 
   expect(course3.courseState()).toMatchObject({progress: 0.5, score: 200, maxScore: 200});
   expect(course.courseState()).toMatchObject({progress: 0.75, score: 519, maxScore: 600});
+});
 
+test("default intro triggering preparation of first activity", async () => {
+  let section = document.createElement("section");
+  let activity = new TestActivity("activity", false);
+  let course = new Course(section, [activity], "course");
+
+  expect(activity.isPrepared).toBe(false);
+  await course.executeActivity("intro");
+  expect(activity.isPrepared).toBe(true);
 });

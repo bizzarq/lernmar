@@ -1,6 +1,7 @@
 import { Activity } from "./Activity";
 import type { ActivityState } from "./ActivityState";
 import type { ExecutableCourse } from "./CourseExecutor";
+import { WaitingIntroActivity } from "./WaitingIntroActivity";
 
 
 type CoursePart = Activity | Course;
@@ -29,8 +30,9 @@ class Course implements ExecutableCourse {
    * constructor.
    * @param section HTML element the activities can insert their content.
    * @param parts activities, the course consist of. the names of the activities must be
-   *   unique. the name "intro" is reserved for activities which are called in the very beginning
-   *   (before the connection to the learn management system is completely established).
+   *   unique and cannot contain dots in their names. the name "intro" is reserved for activities
+   *   which are called in the very beginning (before the connection to the learn management system
+   *   is completely established).
    * @param name name of the course. Must be unique when course is part of a larger course.
    *   default name is "Main Course".
    */
@@ -52,7 +54,10 @@ class Course implements ExecutableCourse {
         continue;
       }
       this.#parts[part.name] = part;
-      this.#incompletes.push(part);
+      if (part.name !== "intro") {
+        // intro will not be listed in incompletes to avoid having it as next activity
+        this.#incompletes.push(part);
+      }
       if (isActivity(part)) {
         if (part.isMandatory) {
           this.#mandatoryActivities++;
@@ -82,14 +87,23 @@ class Course implements ExecutableCourse {
       let nameHead = match[1];
       let nameTail = match[2];
       let part = this.#parts[nameHead];
+      if (!part) {
+        if (nameHead === "intro") {
+          let nextActivity = this.nextActivity2()[1];
+          let prepare = nextActivity?.prepare;
+          if (prepare) {
+            // if there is no intro but next activity needs preparation, make an intro for it
+            let intro = new WaitingIntroActivity(prepare());
+            return [intro.execute(this.#section), this.nextActivity2()[1]];
+          }
+        }
+        // if activity is not found, return success=false
+        return [Promise.resolve({progress: 1, success: false}), this.nextActivity2()[1]];
+      }
+
       let resultPromise: Promise<ActivityState>;
       let successor: Activity | null = null;
-      if (!part) {
-        resultPromise = new Promise((resolve) => {
-          resolve({progress: 1, success: false});
-        });
-      }
-      else if (isActivity(part)) {
+      if (isActivity(part)) {
         resultPromise = part.execute(this.#section);
         resultPromise.then((state) => {
           // store result of activity
@@ -104,21 +118,26 @@ class Course implements ExecutableCourse {
       else {
         [resultPromise, successor] = part.executeActivity2(nameTail);
       }
-      if (successor === null && this.#incompletes.length > 0) {
-        let successorId: number | undefined;
-        if (part) {
-          let incompleteId = this.#incompletes.indexOf(part);
-          if (incompleteId >= 0) {
-            successorId = incompleteId + 1;
-          }
-        }
-        successor = this.nextActivity2(successorId)[1];
-        // if next activity is part to execute, there are no more incompletes, return null
-        successor = successor !== part ? successor : null;
-      }
+      successor = this.#ensureSuccessor(part, successor);
       return [resultPromise, successor];
     }
     throw new Error(`invalid activity name ${name}`);
+  }
+
+  #ensureSuccessor(part: CoursePart, successor: Activity | null) {
+    if (successor === null && this.#incompletes.length > 0) {
+      let successorId: number | undefined;
+      if (part) {
+        let incompleteId = this.#incompletes.indexOf(part);
+        if (incompleteId >= 0) {
+          successorId = incompleteId + 1;
+        }
+      }
+      successor = this.nextActivity2(successorId)[1];
+      // if next activity is part to execute, there are no more incompletes, return null
+      successor = successor !== part ? successor : null;
+    }
+    return successor;
   }
 
   setActivityStates(states: Record<string, ActivityState>): void {
