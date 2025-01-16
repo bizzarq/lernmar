@@ -43,6 +43,10 @@ class Course implements ExecutableCourse {
     this.#incompleteId = 0;
     this.#mandatoryActivities = 0;
     for (let part of parts) {
+      if (!part.name || part.name.includes(".")) {
+        console.error(`ignore invalid activity name ${part.name}`);
+        continue;
+      }
       if (part.name in this.#parts) {
         console.error(`ignore duplicate activity ${part.name}`);
         continue;

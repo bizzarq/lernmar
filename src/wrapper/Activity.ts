@@ -7,7 +7,8 @@ import type { ActivityState } from "./ActivityState";
 interface Activity {
 
   /**
-   * name of the activity. must be unique in the course.
+   * name of the activity. must be unique in the course and must not contain dots (".") as dots are
+   * used to separate course and section names.
    */
   readonly name: string;
 
