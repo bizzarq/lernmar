@@ -77,6 +77,11 @@ class CourseExecutor{
     await this.#processState(introName, introPromise);
     let executions: Record<string, number> = {introName: 1};
 
+    if (name === introName) {
+      // if course suggested the intro activity (before it was finished), ask for the next after.
+      name = this.course.nextActivity();
+    }
+
     while (name) {
       // avoid endless loop if the course repeatedly returns the same activities
       // by setting a limit of executions per activity
