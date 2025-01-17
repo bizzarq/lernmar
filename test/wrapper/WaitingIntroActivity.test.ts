@@ -7,8 +7,8 @@ import { WaitingIntroActivity } from "../../src/wrapper/WaitingIntroActivity";
 test("normal execution", async () => {
   let message = document.createElement("div");
   let resolve = () => {};
-  let promise = new Promise<void>((resolve2) => resolve = resolve2);
-  let intro = new WaitingIntroActivity(promise, message);
+  let wait = () => new Promise<void>((resolve2) => resolve = resolve2);
+  let intro = new WaitingIntroActivity(wait, message);
 
   let section = document.createElement("section");
   expect(section.childNodes.length).toBe(0);
@@ -22,8 +22,8 @@ test("normal execution", async () => {
 test("with exception string instead of HTML", async () => {
   let message = "test message";
   let reject = () => {};
-  let promise = new Promise<void>((resolve, reject2) => reject = reject2);
-  let intro = new WaitingIntroActivity(promise, message);
+  let wait = () => new Promise<void>((resolve, reject2) => reject = reject2);
+  let intro = new WaitingIntroActivity(wait, message);
 
   let section = document.createElement("section");
   expect(section.childNodes.length).toBe(0);

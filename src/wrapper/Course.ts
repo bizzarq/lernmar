@@ -90,10 +90,10 @@ class Course implements ExecutableCourse {
       if (!part) {
         if (nameHead === "intro") {
           let nextActivity = this.nextActivity2()[1];
-          let prepare = nextActivity?.prepare;
+          let prepare = nextActivity?.prepare?.bind(nextActivity);
           if (prepare) {
             // if there is no intro but next activity needs preparation, make an intro for it
-            let intro = new WaitingIntroActivity(prepare());
+            let intro = new WaitingIntroActivity(prepare);
             return [intro.execute(this.#section), this.nextActivity2()[1]];
           }
         }
