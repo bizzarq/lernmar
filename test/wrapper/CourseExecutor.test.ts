@@ -80,3 +80,19 @@ test("course always proposes same activity", async () => {
   expect(nextActivityCount).toBe(maxExecutions + 1);
   expect(executions).toBe(maxExecutions);
 });
+
+test("intro is only executed once", async () => {
+  let intro = new TestActivity("intro", false);
+  let activity = new TestActivity("activity", true);
+  let course = new Course(document.createElement("section"), [intro, activity]);
+  let wrapper = new CourseWrapperStandalone();
+  let executor = new CourseExecutor(course, wrapper);
+
+  let introExecutions = 0;
+  intro.onExecuteStart = async () => {
+    introExecutions++;
+  };
+
+  await executor.execute();
+  expect(introExecutions).toBe(1);
+});
