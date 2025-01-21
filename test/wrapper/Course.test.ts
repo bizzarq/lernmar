@@ -74,28 +74,32 @@ test('incomplete activities', async () => {
   let section = document.createElement("section");
   let activity1 = new TestActivity("activity 1", true);
   let activity2 = new TestActivity("activity 2", true);
-  let course = new Course(section, [activity1, activity2]);
+  let activity3 = new TestActivity("activity 3", true);
+  let course = new Course(section, [activity1, activity2, activity3]);
 
   activity1.result = { progress: 0 };
-  expect(course.nextActivity()).toBe("activity 1");
-  let result = await course.executeActivity("activity 1");
-  expect(result).toMatchObject({ progress: 0});
+  activity3.result = { progress: 0 };
 
-  activity1.result = { progress: 1, success: false };
   expect(course.nextActivity()).toBe("activity 1");
-  result = await course.executeActivity("activity 1");
-  expect(result).toMatchObject({ progress: 1, success: false });
-  
-  activity2.result = { progress: 0 };
+  await expect(course.executeActivity("activity 1")).resolves.toMatchObject({ progress: 0 });
   expect(course.nextActivity()).toBe("activity 2");
-  result = await course.executeActivity("activity 2");
-  expect(result).toMatchObject({ progress: 0 });
 
-  activity2.result = { progress: 1, success: true };
+  // execute activity 1 again (although activity2 is next)
+  await expect(course.executeActivity("activity 1")).resolves.toMatchObject({ progress: 0 });
   expect(course.nextActivity()).toBe("activity 2");
-  result = await course.executeActivity("activity 2");
-  expect(result).toMatchObject({ progress: 1, success: true });
-  
+
+  await expect(course.executeActivity("activity 2")).resolves.toMatchObject({ progress: 1, success: true });
+  expect(course.nextActivity()).toBe("activity 3");
+
+  // execute activity 1 again (although activity3 is next)
+  await expect(course.executeActivity("activity 1")).resolves.toMatchObject({ progress: 0 });
+  expect(course.nextActivity()).toBe("activity 3");
+
+  await expect(course.executeActivity("activity 3")).resolves.toMatchObject({ progress: 0 });
+  expect(course.nextActivity()).toBe("");
+
+  // execute activity 1 again (although course is finished)
+  await expect(course.executeActivity("activity 1")).resolves.toMatchObject({ progress: 0 });
   expect(course.nextActivity()).toBe("");
 });
 

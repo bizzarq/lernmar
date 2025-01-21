@@ -15,14 +15,17 @@ function isActivity(part: CoursePart): part is Activity {
  * standard implementation of a lernmar course. A course is a collection of activities which can
  * be executed by a course executer. courses can contain other courses. In this case, each of the
  * parts (activities and sub-courses) need a unique name.
+ *
+ * The course assumes a linear execution in which every activity is only executed once (even if
+ * activities are not completed).
  */
 class Course implements ExecutableCourse {
   readonly name: string;
   #section;
   #parts: Record<string, CoursePart>;
   #activityStates: Record<string, ActivityState>;
-  #incompletes: Array<CoursePart>;
-  #incompleteId: number;
+  #todos: Array<CoursePart>;
+  #todoId: number;
   #mandatoryActivities;
   #namePattern = /^([^\.]+)\.?(.*)$/;
 
@@ -41,8 +44,8 @@ class Course implements ExecutableCourse {
     this.#section = section;
     this.#parts = {};
     this.#activityStates = {};
-    this.#incompletes = [];
-    this.#incompleteId = 0;
+    this.#todos = [];
+    this.#todoId = 0;
     this.#mandatoryActivities = 0;
     for (let part of parts) {
       if (!part.name || part.name.includes(".")) {
@@ -56,7 +59,7 @@ class Course implements ExecutableCourse {
       this.#parts[part.name] = part;
       if (part.name !== "intro") {
         // intro will not be listed in incompletes to avoid having it as next activity
-        this.#incompletes.push(part);
+        this.#todos.push(part);
       }
       if (isActivity(part)) {
         if (part.isMandatory) {
@@ -108,9 +111,7 @@ class Course implements ExecutableCourse {
         resultPromise.then((state) => {
           // store result of activity
           this.#activityStates[nameHead] = state;
-          if (state.progress >= 1) {
-            this.#markcomplete(part);
-          }
+          this.#markDone(part);
         }).catch(() => {
           console.error(`error executing activity ${part.name} in ${this.name}`);
         })
@@ -125,10 +126,10 @@ class Course implements ExecutableCourse {
   }
 
   #ensureSuccessor(part: CoursePart, successor: Activity | null) {
-    if (successor === null && this.#incompletes.length > 0) {
+    if (successor === null && this.#todos.length > 0) {
       let successorId: number | undefined;
       if (part) {
-        let incompleteId = this.#incompletes.indexOf(part);
+        let incompleteId = this.#todos.indexOf(part);
         if (incompleteId >= 0) {
           successorId = incompleteId + 1;
         }
@@ -158,9 +159,7 @@ class Course implements ExecutableCourse {
             continue;
           }
           this.#activityStates[nameHead] = state;
-          if (state.progress >= 1) {
-            this.#markcomplete(part);
-          }
+          this.#markDone(part);
         }
         else {
           // collect sub-course activities in own objects
@@ -185,7 +184,6 @@ class Course implements ExecutableCourse {
   }
 
   courseState(): ActivityState {
-    let mandatory = this.#mandatoryActivities > 0;
     let progressSum = 0;
     let success = true;
     let hasScore = false;
@@ -256,13 +254,13 @@ class Course implements ExecutableCourse {
    */
   private nextActivity2(startId?: number): [string, Activity] | ["", null] {
     if (startId === undefined) {
-      startId = this.#incompleteId;
+      startId = this.#todoId;
     }
-    while (this.#incompletes.length > 0) {
-      if (startId >= this.#incompletes.length) {
+    while (this.#todos.length > 0) {
+      if (startId >= this.#todos.length) {
         startId = 0;
       }
-      let part = this.#incompletes[startId];
+      let part = this.#todos[startId];
       if (isActivity(part)) {
         return [part.name, part];
       }
@@ -271,7 +269,7 @@ class Course implements ExecutableCourse {
         if (subName === "") {
           // if sub-course is complete call finalize and deleted it from incomplete list
           part?.finalize();
-          this.#markcomplete(part);
+          this.#markDone(part);
           // as sub-course was complete we need to find another next Activity (continue loop)
           continue;
         }
@@ -283,15 +281,15 @@ class Course implements ExecutableCourse {
   }
 
   /**
-   * mark part as complete (by removing it from the incomplete list) and set the incompleteId
+   * mark part as done (by removing it from the todo list) and set the todoId
    * to the next entry. do nothing if the part does not exist.
    * @param part part to mark as complete.
    */
-  #markcomplete(part: CoursePart) {
-    let incompleteId = this.#incompletes.indexOf(part);
-    if (incompleteId >= 0) {
-      this.#incompletes.splice(incompleteId, 1);
-      this.#incompleteId = incompleteId == this.#incompletes.length ? 0 : incompleteId;
+  #markDone(part: CoursePart) {
+    let todoId = this.#todos.indexOf(part);
+    if (todoId >= 0) {
+      this.#todos.splice(todoId, 1);
+      this.#todoId = todoId == this.#todos.length ? 0 : todoId;
     }
   }
 
@@ -302,9 +300,9 @@ class Course implements ExecutableCourse {
    * @returns a promise of name of the activity prepared or null if there was no activity to prepare.
    */
   private prepare(): Promise<string> | null {
-    for (let i = 0; i <= this.#incompletes.length; i++) {
-      let id = (this.#incompleteId + i) % this.#incompletes.length;
-      let part = this.#incompletes[id];
+    for (let i = 0; i <= this.#todos.length; i++) {
+      let id = (this.#todoId + i) % this.#todos.length;
+      let part = this.#todos[id];
       if (!isActivity(part)) {
         let result = part.prepare();
         if (result !== null) {
