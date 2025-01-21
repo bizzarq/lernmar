@@ -58,7 +58,7 @@ class Course implements ExecutableCourse {
       }
       this.#parts[part.name] = part;
       if (part.name !== "intro") {
-        // intro will not be listed in incompletes to avoid having it as next activity
+        // intro will not be listed in todos to avoid having it as next activity
         this.#todos.push(part);
       }
       if (isActivity(part)) {
@@ -79,10 +79,10 @@ class Course implements ExecutableCourse {
   }
 
   /**
-   * executes an activity and retrieves its next incomplete successor in the course.
+   * executes an activity and retrieves its next todo successor in the course.
    * @param name name of activity
-   * @returns result of activity execution and its incomplete successor.
-   *  - successor is null if there is no incomplete activity left.
+   * @returns result of activity execution and its todo successor.
+   *  - successor is null if there is no todo activity left.
    */
   private executeActivity2(name: string): [Promise<ActivityState>, Activity | null] {
     let match = name.match(this.#namePattern);
@@ -129,13 +129,13 @@ class Course implements ExecutableCourse {
     if (successor === null && this.#todos.length > 0) {
       let successorId: number | undefined;
       if (part) {
-        let incompleteId = this.#todos.indexOf(part);
-        if (incompleteId >= 0) {
-          successorId = incompleteId + 1;
+        let todoId = this.#todos.indexOf(part);
+        if (todoId >= 0) {
+          successorId = todoId + 1;
         }
       }
       successor = this.nextActivity2(successorId)[1];
-      // if next activity is part to execute, there are no more incompletes, return null
+      // if next activity is part to execute, there are no more todos, return null
       successor = successor !== part ? successor : null;
     }
     return successor;
@@ -230,11 +230,11 @@ class Course implements ExecutableCourse {
       result = {progress: 1, success};
     }
     else {
-      // course is incomplete. success will not be set.
+      // course is todo. success will not be set.
       result = {progress: progressSum / this.#mandatoryActivities};
     }
     if (hasScore) {
-      // add score in both cases, complete and incomplete
+      // add score in both cases, complete and todo
       result = {...result, score, maxScore};
     }
     return result;
@@ -247,9 +247,9 @@ class Course implements ExecutableCourse {
   }
 
   /**
-   * looks for the next incomplete activity in the course. the search starts at the given startId.
-   * @param startId: id to start the search. if not given, the search starts at the first incomplete.
-   * @returns a pair [name, activity] of the next incomplete activity.
+   * looks for the next todo activity in the course. the search starts at the given startId.
+   * @param startId: id to start the search. if not given, the search starts at the first todo.
+   * @returns a pair [name, activity] of the next todo activity.
    *  - name is empty string and activity is null if the course is complete.
    */
   private nextActivity2(startId?: number): [string, Activity] | ["", null] {
@@ -267,7 +267,7 @@ class Course implements ExecutableCourse {
       else {
         let [subName, subPart] = part.nextActivity2();
         if (subName === "") {
-          // if sub-course is complete call finalize and deleted it from incomplete list
+          // if sub-course is complete call finalize and deleted it from todo list
           part?.finalize();
           this.#markDone(part);
           // as sub-course was complete we need to find another next Activity (continue loop)
@@ -276,7 +276,7 @@ class Course implements ExecutableCourse {
         return [`${part.name}.${subName}`, subPart] as [string, Activity];
       }
     }
-    // no incompletes left, return empty string for informing that course is complete.
+    // no todos left, return empty string for informing that course is complete.
     return ["", null];
   }
 
@@ -327,7 +327,7 @@ class Course implements ExecutableCourse {
         });
       }
     }
-    // there is not incomplete activity left to prepare, return null
+    // there is not todo activity left to prepare, return null
     return null;
   }
 
