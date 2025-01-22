@@ -8,6 +8,7 @@ import { ActivityState } from "./ActivityState";
 class WaitingIntroActivity implements Activity {
   readonly name: string = "intro";
   readonly isMandatory: boolean = false;
+  readonly maxScore: number | undefined;
   #wait: () => Promise<void>;
   #introContent: HTMLElement | undefined;
   #maxDelay: number = 10000;

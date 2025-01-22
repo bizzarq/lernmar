@@ -5,6 +5,7 @@ import type { ActivityState } from "../../src/wrapper/ActivityState";
 class TestActivity implements Activity {
   name: string;
   isMandatory: boolean;
+  maxScore: number | undefined;
   result: ActivityState;
   isExecuted: boolean = false;
   isPrepared: boolean = false;

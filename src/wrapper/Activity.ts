@@ -21,6 +21,11 @@ interface Activity {
   readonly isMandatory: boolean;
 
   /**
+   * maximum score which can be achieved in activity. omit if activity is not scored.
+   */
+  readonly maxScore: number | undefined;
+
+  /**
    * prepare the activity for execution, e.g. by loading resources.
    * if there is nothing to prepare, this method can be omitted.
    * even if this method gets called more than once, there should only be one actual preparation.
