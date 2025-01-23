@@ -23,7 +23,7 @@ interface Activity {
   /**
    * maximum score which can be achieved in activity. omit if activity is not scored.
    */
-  readonly maxScore: number | undefined;
+  readonly maxScore?: number;
 
   /**
    * prepare the activity for execution, e.g. by loading resources.
