@@ -16,18 +16,18 @@ class TestActivity implements Activity {
     this.result = {progress: 1, success: true};
   }
 
-  onExecuteStart: (() => Promise<void>) | undefined; 
-  onExecuteEnd: (() => Promise<void>) | undefined; 
+  onExecute: (() => Promise<void>) | undefined;
+  onPrepare: (() => Promise<void>) | undefined;
 
   async execute(section: HTMLElement): Promise<ActivityState> {
-    await this.onExecuteStart?.();
     this.isExecuted = true;
-    await this.onExecuteEnd?.();
+    await this.onExecute?.();
     return this.result;
   }
 
   async prepare(): Promise<void> {
     this.isPrepared = true;
+    await this.onPrepare?.();
   }
   
 }

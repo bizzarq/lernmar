@@ -21,34 +21,32 @@ test("normal execution of nested course", async () => {
   let wrapper = new CourseWrapperStandalone();
   let executor = new CourseExecutor(course, wrapper);
 
-  activity1.onExecuteStart = async () => {
+  activity1.onExecute = async () => {
     expect(activity1.isPrepared).toBe(true);
-    expect(activity1.isExecuted).toBe(false);
+    expect(activity1.isExecuted).toBe(true);
     expect(activity211.isPrepared).toBe(false);
     expect(activity211.isExecuted).toBe(false);
     expect(activity22.isPrepared).toBe(false);
     expect(activity22.isExecuted).toBe(false);
-  };
-  activity1.onExecuteEnd = async () => {
+    await new Promise(resolve => setTimeout(resolve, 1));
     expect(await wrapper.getCurrentActivity()).toBe("activity 1");
   }
 
-  activity211.onExecuteStart = async () => {
+  activity211.onExecute = async () => {
     expect(activity1.isExecuted).toBe(true);
     expect(activity211.isPrepared).toBe(true);
-    expect(activity211.isExecuted).toBe(false);
+    expect(activity211.isExecuted).toBe(true);
     expect(activity22.isPrepared).toBe(false);
     expect(activity22.isExecuted).toBe(false);
-  };
-  activity211.onExecuteEnd = async () => {
+    await new Promise(resolve => setTimeout(resolve, 1));
     expect(await wrapper.getCurrentActivity()).toBe("course 2.course 21.activity 211");
   };
-  activity22.onExecuteStart = async () => {
+
+  activity22.onExecute = async () => {
     expect(activity211.isExecuted).toBe(true);
     expect(activity22.isPrepared).toBe(true);
-    expect(activity22.isExecuted).toBe(false);
-  };
-  activity22.onExecuteEnd = async () => {
+    expect(activity22.isExecuted).toBe(true);
+    await new Promise(resolve => setTimeout(resolve, 1));
     expect(await wrapper.getCurrentActivity()).toBe("course 2.activity 22");
   };
 
@@ -72,7 +70,7 @@ test("course always proposes same activity", async () => {
   let executor = new CourseExecutor(course, wrapper);
 
   let executions = 0;
-  activity.onExecuteStart = async () => {
+  activity.onExecute = async () => {
     executions++;
   };
 
@@ -89,7 +87,7 @@ test("intro is only executed once", async () => {
   let executor = new CourseExecutor(course, wrapper);
 
   let introExecutions = 0;
-  intro.onExecuteStart = async () => {
+  intro.onExecute = async () => {
     introExecutions++;
   };
 
