@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+import { ActivityState } from "../../src/wrapper/ActivityState";
 import { Course } from "../../src/wrapper/Course";
 import { TestActivity } from "./TestActivity";
 import { TestWrapper } from "./TestWrapper";
@@ -368,4 +369,22 @@ test("bad names are recognized and ignored", async () => {
   expect(activity1.isExecuted).toBe(false);
   expect(activity2.isExecuted).toBe(true);
   expect(activity3.isExecuted).toBe(false);
+});
+
+test("onProgress is called once for each activity", async () => {
+  let section = document.createElement("section");
+  let wrapper = new TestWrapper();
+  let activity1 = new TestActivity("activity 1", true);
+  let activity2 = new TestActivity("activity 2", true);
+  let activity3 = new TestActivity("activity 3", true);
+  let course = new Course([activity1, activity2, activity3]);
+
+  let states: Array<ActivityState> = [];
+  course.onProgress = (state) => states.push(state);
+  await course.execute(section, wrapper);
+
+  expect(states.length).toBe(3);
+  expect(states[0]).toEqual({progress: 1/3});
+  expect(states[1]).toEqual({progress: 2/3});
+  expect(states[2]).toEqual({progress: 1, success: true});
 });

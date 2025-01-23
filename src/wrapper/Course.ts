@@ -24,6 +24,12 @@ class Course {
   readonly successThreshold: number;
   #parts: Array<CoursePart>;
 
+  /**
+   * constructor.
+   * @param parts parts of the course (activities and sub-courses).
+   * @param name name of the course (default: "Main Course"). must be unique if course is a
+   *   sub-course.
+   */
   constructor(parts: Array<CoursePart>, name: string = "Main Course") {
     this.name = name;
     this.mandatoryActivities = 0;
@@ -51,6 +57,12 @@ class Course {
   }
 
   /**
+   * event handler for progress inside the course (whenever an activity is completed).
+   * @param state new course state.
+   */
+  onProgress(state: ActivityState): void {};
+
+  /**
    * prepare the course (e.g. by loading resources).
    * - currently, only the first activity is prepared for avoiding bottle necks.
    */
@@ -74,6 +86,7 @@ class Course {
     let macos = 0; // number of mandatory activities completed
     let score = 0; // overall score
     let success = true;
+    let courseState: ActivityState = {progress: 1, success: true};
     for (let [partId, part] of this.#parts.entries()) {
       let preparePromise = this.#parts[partId + 1]?.prepare?.();
       let subPath = path == "" ? part.name : `${path}.${part.name}`;
@@ -91,10 +104,15 @@ class Course {
         success &&= state.success === true;
         if ("score" in state) score += state.score;
       }
+      courseState = this.#calculateState(macos, score, success);
+      this.onProgress(courseState);
       await preparePromise;
     }
-    let progress = this.mandatoryActivities > 0 ? macos / this.mandatoryActivities : 1;
+    return courseState;
+  }
 
+  #calculateState(macos: number, score: number, success: boolean): ActivityState {
+    let progress = this.mandatoryActivities > 0 ? macos / this.mandatoryActivities : 1;
     if (progress >= 1) {
       if (this.maxScore > 0) {
         success = success && score >= this.successThreshold * this.maxScore;
