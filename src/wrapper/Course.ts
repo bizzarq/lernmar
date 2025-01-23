@@ -86,7 +86,7 @@ class Course {
     let macos = 0; // number of mandatory activities completed
     let score = 0; // overall score
     let success = true;
-    let courseState: ActivityState = {progress: 1, success: true};
+    let courseState: ActivityState = {progress: 1, success};
     for (let [partId, part] of this.#parts.entries()) {
       let preparePromise = this.#parts[partId + 1]?.prepare?.();
       let subPath = path == "" ? part.name : `${path}.${part.name}`;
