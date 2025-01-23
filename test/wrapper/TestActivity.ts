@@ -5,7 +5,6 @@ import type { ActivityState } from "../../src/wrapper/ActivityState";
 class TestActivity implements Activity {
   name: string;
   isMandatory: boolean;
-  maxScore: number | undefined;
   result: ActivityState;
   isExecuted: boolean = false;
   isPrepared: boolean = false;
@@ -14,6 +13,10 @@ class TestActivity implements Activity {
     this.name = name;
     this.isMandatory = isMandatory;
     this.result = {progress: 1, success: true};
+  }
+
+  get maxScore(): number | undefined {
+    return ("maxScore" in this.result) ? this.result.maxScore : undefined;
   }
 
   onExecute: (() => Promise<void>) | undefined;
