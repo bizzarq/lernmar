@@ -5,6 +5,9 @@ import type { ActivityState } from "./ActivityState";
 import type { CourseWrapper } from "./CourseWrapper";
 
 
+/**
+ * a wrapper for a course that uses the SCORM 2004 4th edition API.
+ */
 class CourseWrapper2004_4 implements CourseWrapper {
   #api: ScormApi_2004_4 | undefined;
   #isInitialized: boolean = false;
@@ -14,7 +17,12 @@ class CourseWrapper2004_4 implements CourseWrapper {
   #location: string | null = null;
   #activityStates: Record<string, ActivityState>;
 
-  constructor() {
+  /**
+   * constructor.
+   * @param api the api to use. if not provided, the wrapper will find the api.
+   */
+  constructor(api?: ScormApi_2004_4) {
+    this.#api = api;
     this.#activityStates = {};
   }
 
